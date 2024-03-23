@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chouette.rankingWeb.dao.file.FileDAO">
+
+    <sql id="select">
+        SELECT
+            *
+        FROM
+            FILE
+    </sql>
+
+    <insert id="add" parameterType="com.chouette.rankingWeb.vo.file.FileVO" useGeneratedKeys="true" keyProperty="file">
+        INSERT INTO
+            FILE ( NAME, SERVER_NAME, PATH )
+        VALUES
+            ( #{name}, #{serverName}, #{path} )
+    </insert>
+
+    <delete id="del" parameterType="com.chouette.rankingWeb.vo.file.FileVO">
+        DELETE
+        FROM
+            FILE
+        WHERE
+            FILE = #{file}
+    </delete>
+
+    <select id="getItem" parameterType="com.chouette.rankingWeb.vo.file.FileVO" resultType="com.chouette.rankingWeb.vo.file.FileVO">
+        <include refid="select"/>
+        WHERE
+            FILE = #{file}
+    </select>
+
+    <select id="getTierList" resultType="com.chouette.rankingWeb.vo.file.FileVO">
+        <include refid="select"/>
+        INNER JOIN
+            STD_TIER ST ON ST.FILE = FILE.FILE
+    </select>
+
+
+    <select id="getDelTierList" parameterType="java.util.List" resultType="com.chouette.rankingWeb.vo.file.FileVO">
+        <include refid="select"/>
+        INNER JOIN
+            STD_TIER ST ON ST.FILE = FILE.FILE
+        WHERE
+            FILE.FILE NOT IN
+        <foreach item="id" collection="list" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+
+</mapper>
+

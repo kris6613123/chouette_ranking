@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>chpi</title>
+
+    <link rel="manifest" href="/manifest.json">
+    <link rel="shortcut icon" type="image/x-icon" href="/img/title.jpg">
+    <link rel="import" href="common/header.html">
+    <link rel='stylesheet' href='/css/common/header.css' type='text/css'/>
+    <link rel='stylesheet' href='/css/common/table.css' type='text/css'/>
+    <link rel='stylesheet' href='/css/common/common.css' type='text/css'/>
+    <script src="/js/common/common.js"></script>
+    <script type="module">
+        import 'https://cdn.jsdelivr.net/npm/@pwabuilder/pwaupdate';
+        const el = document.createElement('pwa-update');
+        document.body.appendChild(el);
+    </script>
+
+    <script>
+        window.onload = function () {
+            let btn_page = document.querySelectorAll('.page-link');
+            btn_page.forEach( function ( btn ) {
+                btn.addEventListener( 'click', paging );
+            });
+
+            let search = document.querySelector('.img-search');
+            search.addEventListener( 'click', function () {
+                searching( document.querySelector('.io-search') );
+            });
+
+            let input = document.querySelector('.search');
+            input.addEventListener('keyup', function (evt) {
+                if(evt.keyCode === 13) {
+                    evt.target.nextElementSibling.querySelector('img').click();
+                }
+            });
+        }
+
+    </script>
+</head>
+<body>
+<header th:replace='common/header.html :: fragment-header'></header>
+
+<section class="wrapper long-long-box">
+    <div class="searcher">
+        <input class='io-search search' id="customer" type='search' name='customer' placeholder='플레이어를 입력해주세요.'/>
+        <div> <img class="img-search" src="/img/search.png" alt=""> </div>
+    </div>
+
+    <div class="customer-list">
+
+        <h2 class="tbl-h2">&nbsp&nbsp SEARCH</h2>
+        <div class="tbl-scroll">
+            <table class="tbl tbl-customer">
+                <thead>
+                <tr class="tbl-title">
+                    <th>SHOP</th>
+                    <th>PLAYER</th>
+                    <th colspan="2">TOTAL</th>
+                    <th colspan="2">OFF LINE</th>
+                    <th colspan="2">ON LINE</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each='customer, stat : ${customerList}'>
+                    <td th:text="${customer.branchName}"></td>
+                    <td class="td-all-break"><a class="row-yellow row-search" th:text="${customer.nickname}" th:href="'/customer/' + ${customer.customer} + '/view'"></a></td>
+                    <td class="row-rank" th:text="${customer.totalRank} != null ? ${customer.totalRank}  + '위' : ''"></td>
+                    <td class="row-yellow td-word-break" th:text="${customer.totalCpi} != null ? ${customer.totalCpi}  + ' pts' : ''"></td>
+                    <td class="row-rank" th:text="${customer.offlineRank} != null ? ${customer.offlineRank}  + '위' : ''"></td>
+                    <td class="row-yellow td-word-break" th:text="${customer.offlineCpi} != null ? ${customer.offlineCpi}  + ' pts' : ''"></td>
+                    <td class="row-rank" th:text="${customer.onlineRank} != null ? ${customer.onlineRank}  + '위' : ''"></td>
+                    <td class="row-yellow td-word-break" th:text="${customer.onlineCpi} != null ? ${customer.onlineCpi}  + ' pts' : ''"></td>
+                </tr>
+                <tr th:if='${customerList.size() == 0}'>
+                    <td colspan="8">일치하는 결과가 없습니다.</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+
+    <div th:replace='common/pagination.html :: fragment-pagination'></div>
+
+</section>
+</body>
+</html>

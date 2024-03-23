@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>chpi</title>
+
+    <link rel="manifest" href="/manifest.json">
+    <link rel="shortcut icon" type="image/x-icon" href="/img/title.jpg">
+    <link rel="import" href="../common/header.html">
+    <link rel='stylesheet' href='/css/common/header.css' type='text/css'/>
+    <link rel='stylesheet' href='/css/std.css' type='text/css'/>
+    <link rel='stylesheet' href='/css/common/common.css' type='text/css'/>
+
+    <script src="/js/common/common.js"></script>
+    <script type="module">
+        import 'https://cdn.jsdelivr.net/npm/@pwabuilder/pwaupdate';
+        const el = document.createElement('pwa-update');
+        document.body.appendChild(el);
+    </script>
+    <script>
+        window.onload = function () {
+            let form = document.getElementById('f-std');
+            form.addEventListener('submit', function (evt) {
+                defaultApply( evt, document.getElementById('f-std'), "" );
+            });
+        }
+
+    </script>
+
+</head>
+<body>
+
+<header th:replace='common/header.html :: fragment-header'></header>
+
+<section class="wrapper long-box">
+
+    <div th:replace="common/stdHeader.html :: fragment-stdHeader"></div>
+
+    <div class="std-form">
+
+        <p class='formula'> volume 지수 = 총 바이인 금액 * {적용 상수} </p>
+
+        <form action='volume/mod/p' class='io-form' id='f-std' method='post'>
+            <div class="tbl-scroll">
+                <fieldset>
+                    <legend><input type="date" class="io" name="applyDttm" th:min="${volume.applyDttm}" th:value="${volume.applyDttm}" required></legend>
+
+                    <table class="tbl">
+                        <thead>
+                        <tr>
+                            <th>{적용 상수}</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td>
+                                <input class='io' name='weight' placeholder="적용 상수" th:value='${volume.stdWeight}' required />
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </fieldset>
+            </div>
+
+            <div class='regInfo'>
+                <p th:text="'최근 수정자: ' + ${volume.regUserId}"></p>
+                <p th:text="'최근 수정시간: ' + ${#temporals.format(volume.regDttm, 'yyyy-MM-dd HH:mm:ss')}"></p>
+            </div>
+
+            <button id="form-apply">적용하기</button>
+
+        </form>
+
+    </div>
+
+</section>
+</body>
+</html>

@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>chpi</title>
+
+    <link rel="manifest" href="/manifest.json">
+    <link rel="shortcut icon" type="image/x-icon" href="/img/title.jpg">
+    <link rel="import" href="../common/header.html">
+    <link rel='stylesheet' href='/css/common/header.css' type='text/css'/>
+    <link rel='stylesheet' href='/css/common/form.css' type='text/css'/>
+    <link rel='stylesheet' href='/css/common/common.css' type='text/css'/>
+
+    <script src="/js/common/common.js"></script>
+    <script type="module">
+        import 'https://cdn.jsdelivr.net/npm/@pwabuilder/pwaupdate';
+        const el = document.createElement('pwa-update');
+        document.body.appendChild(el);
+    </script>
+    <script>
+        window.onload = function () {
+
+            let form = document.querySelector('#f-customer');
+            form.addEventListener( 'submit', apply );
+
+            let tel = document.querySelector('#tel');
+            if( !!tel.value ) {
+                tel.value = telFormat( tel.value );
+            }
+            tel.addEventListener( 'keyup', function () {
+                this.value = telFormat( this.value );
+            } );
+
+            let btn_file = document.querySelector('.file-add');
+            btn_file.addEventListener( 'change', function (evt) {
+                previewImg(evt);
+            } );
+
+            document.getElementById('use-baseimg').addEventListener('click', function(evt) {
+                baseImg( document.querySelector('.file-add'), '/img/baseCustomer.jpg' );
+            });
+
+        }
+        function apply(evt) {
+
+            evt.preventDefault();
+            let data = new FormData(document.getElementById('f-customer'));
+            let xhr = new XMLHttpRequest();
+
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === XMLHttpRequest.DONE) {
+                    if (xhr.status === 200) {
+                        alert(xhr.responseText);
+                        location.reload();
+                    } else if (xhr.status === 400) {
+                        alert(xhr.responseText);
+                    }
+                }
+            };
+            xhr.open('POST', this.action, true);
+
+            let obj = {};
+            for (let [key, value] of data.entries()) {
+                if (key === 'tel') {
+                    obj[key] = value.replace(/-/g, "");
+                    continue;
+                }
+                if (key === 'formFile') {
+                    continue;
+                }
+                obj[key] = value;
+            }
+
+            let formData = new FormData();
+            let file = document.querySelector('.file-add');
+
+            if (!!file.files[0]) {
+                formData.append('formFile', file.files[0]);
+            }
+            formData.append('vo', new Blob([JSON.stringify(obj)], {type: 'application/json'}));
+            xhr.send(formData);
+
+        }
+
+
+    </script>
+</head>
+<body>
+<header th:replace='common/header.html :: fragment-header'></header>
+
+<section class="wrapper box">
+    <div class="container">
+
+        <h2>유저 등록</h2>
+
+        <form id="f-customer" method="post" action="/customer/mod/p">
+            <input hidden="hidden" name="customer" th:value="${customer.customer}">
+
+            <div class="form-group">
+                <label for="nickname">
+                <input type="text" id="nickname" name="nickname" placeholder="*닉네임" th:value="${customer.nickname}" maxlength="15" required/>
+                </label>
+            </div>
+
+            <div class="form-group">
+                <label for="name">
+                <input type="text" id="name" name="name" placeholder="이름" th:value="${customer.name}"/>
+                </label>
+            </div>
+
+            <div class="form-group">
+                <label for="tel">
+                <input type="tel" id="tel" name="tel" placeholder="*전화번호" pattern="[0-9]{3}-[0-9]{3,4}-[0-9]{4}" th:value="${customer.tel}" required/>
+                </label>
+            </div>
+
+            <div class="form-group">
+                <label for="online">
+                <input type="text" id="online" name="online" placeholder="온라인 키값" th:value="${customer.online}"/>
+                </label>
+            </div>
+
+            <div class="form-group">
+                <label for="branch">
+                    <select id="branch" name="branch" required>
+                        <option th:each="branch : ${branchList}" th:value="${branch.branch}" th:selected="${customer.branch eq branch.branch}" th:text="${branch.name}"></option>
+                    </select>
+                </label>
+            </div>
+
+            <div class="form-group">
+                <fieldset>
+                    <legend>ITM 공개여부</legend>
+                    <label for="itmYn1">
+                        <input type="radio" id="itmYn1" name="itmYn" value="Y" th:checked="${customer.itmYn == 'Y'}" />공개
+                    </label>
+                    <label for="itmYn2">
+                        <input type="radio" id="itmYn2" name="itmYn" value="N" th:checked="${customer.itmYn == 'N' || customer.itmYn eq null}" /> 비공개
+                    </label>
+                </fieldset>
+            </div>
+
+            <div class="form-group form-cus-img">
+                <label for="formFile">
+                    <input hidden="hidden" id="preFile" name="file" th:value="${customer.file}">
+                    <input class="io file-add" accept="image/*" id="formFile" type="file" name="formFile" style="display: none" />
+                    <img id="preview" class="image-fit" th:src="${customer.file != null} ? '/images/' + ${customer.file} : '/img/baseCustomer.jpg'" alt=" " />
+                </label>
+                <button type="button" class="btn-base" id="use-baseimg">기본 이미지 사용</button>
+            </div>
+
+            <div class="form-group">
+                <button type="submit" class="btn-add">회원 등록</button>
+            </div>
+
+        </form>
+    </div>
+</section>
+</body>
+</html>

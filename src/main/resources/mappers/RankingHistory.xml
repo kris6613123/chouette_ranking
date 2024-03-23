@@ -1,0 +1,293 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chouette.rankingWeb.dao.RankingHistoryDAO">
+
+    <sql id="select">
+        SELECT
+            RH.GAME_DTTM AS gameDttm,
+            RH.CUSTOMER AS customer,
+            C.NAME AS name,
+            C.NICKNAME AS nickname,
+            B.NAME AS branchName,
+            B.COLOR_TABLE AS colorTable,
+            MAX(RH.TOTAL_CPI) AS totalCpi,
+            MAX(RH.ONLINE_CPI) AS onlineCpi,
+            MAX(RH.OFFLINE_CPI) AS offlineCpi,
+            CASE
+                WHEN MAX(RH.TOTAL_CPI) IS NULL THEN NULL
+                ELSE RANK() OVER ( ORDER BY MAX(TOTAL_CPI) DESC ) END AS totalRank,
+            CASE
+                WHEN MAX(ONLINE_CPI) IS NULL THEN NULL
+                ELSE RANK() OVER ( ORDER BY MAX(ONLINE_CPI) DESC ) END AS onlineRank,
+            CASE
+                WHEN MAX(OFFLINE_CPI) IS NULL THEN NULL
+                ELSE RANK() OVER ( ORDER BY MAX(OFFLINE_CPI) DESC ) END AS offlineRank
+        FROM
+            RANKING_HISTORY RH
+        INNER JOIN
+                CUSTOMER C ON C.CUSTOMER = RH.CUSTOMER
+        INNER JOIN
+                BRANCH B ON B.BRANCH = C.BRANCH
+    </sql>
+
+    <sql id="selectDetail">
+        SELECT
+            RH.CUSTOMER AS customer,
+            C.NAME AS name,
+            ( SELECT IFNULL( ( COUNT( CASE WHEN G.REWARD > 0 THEN 1 END ) / COUNT(*) ), 0) * 100 FROM GAME G WHERE G.CUSTOMER = C.CUSTOMER ) AS itm,
+            MAX(RH.TOTAL_CPI) AS totalCpi,
+            MAX(RH.ONLINE_CPI) AS onlineCpi,
+            MAX(RH.OFFLINE_CPI) AS offlineCpi,
+            CASE
+                WHEN MAX(RH.TOTAL_CPI) IS NULL THEN NULL
+                ELSE RANK() OVER ( ORDER BY MAX(TOTAL_CPI) DESC ) END AS totalRank,
+            CASE WHEN MAX(ONLINE_CPI) IS NULL THEN NULL
+                 ELSE RANK() OVER ( ORDER BY MAX(ONLINE_CPI) DESC ) END AS onlineRank,
+            CASE WHEN MAX(OFFLINE_CPI) IS NULL THEN NULL
+                 ELSE RANK() OVER ( ORDER BY MAX(OFFLINE_CPI) DESC ) END AS offlineRank
+        FROM
+            RANKING_HISTORY RH
+        INNER JOIN
+            CUSTOMER C ON C.CUSTOMER = RH.CUSTOMER
+        INNER JOIN
+            BRANCH B ON B.BRANCH = C.BRANCH
+        GROUP BY
+            RH.CUSTOMER
+    </sql>
+
+    <insert id="add">
+        INSERT INTO RANKING_HISTORY ( GAME_DTTM, CUSTOMER, TOTAL_CPI, ONLINE_CPI, OFFLINE_CPI )
+        SELECT
+            G.GAME_DTTM,
+            G.CUSTOMER,
+            SUM( G.CPI ) as totalCpi,
+            CASE
+                WHEN SUM( CASE WHEN ONOFF = 'N' THEN G.CPI ELSE 0 END ) = 0 THEN NULL
+                ELSE SUM( CASE WHEN ONOFF = 'N' THEN G.CPI ELSE 0 END )
+                END AS onlineCpi,
+            CASE
+                WHEN SUM( CASE WHEN ONOFF = 'F' THEN G.CPI ELSE 0 END ) = 0 THEN NULL
+                ELSE SUM( CASE WHEN ONOFF = 'F' THEN G.CPI ELSE 0 END )
+                END AS offlineCpi
+        FROM
+            GAME G
+        WHERE
+            G.STATE = 'SUCCESS' OR G.CPI IS NOT NULL
+        GROUP BY
+            G.CUSTOMER, G.GAME_DTTM
+        ORDER BY
+            G.GAME_DTTM
+    </insert>
+
+    <update id="add2">
+        update
+            RANKING_HISTORY RH
+        set
+            RH.TOTAL_CPI = RH.TOTAL_CPI + IFNULL( ( SELECT SUM( RHH.TOTAL_CPI ) FROM RANKING_HISTORY RHH where RHH.CUSTOMER = RH.CUSTOMER and RH.GAME_DTTM > RHH.GAME_DTTM ), 0 ),
+            RH.ONLINE_CPI = RH.ONLINE_CPI + IFNULL( ( SELECT SUM( RHH.ONLINE_CPI ) FROM RANKING_HISTORY RHH where RHH.CUSTOMER = RH.CUSTOMER and RH.GAME_DTTM > RHH.GAME_DTTM ), 0 ),
+            RH.OFFLINE_CPI = RH.OFFLINE_CPI + IFNULL( ( SELECT SUM( RHH.OFFLINE_CPI ) FROM RANKING_HISTORY RHH where RHH.CUSTOMER = RH.CUSTOMER and RH.GAME_DTTM > RHH.GAME_DTTM ), 0 )
+    </update>
+
+    <update id="add3">
+        UPDATE
+            RANKING_HISTORY RH
+        SET
+            RH.TOTAL_RANK =
+                ( SELECT rank
+                  FROM
+                      ( SELECT
+                            r2.CUSTOMER,
+                            r1.GAME_DTTM,
+                            MAX(r2.TOTAL_CPI),
+                            RANK() OVER (PARTITION BY r1.GAME_DTTM ORDER BY MAX(r2.TOTAL_CPI) DESC ) AS rank
+                        FROM
+                            RANKING_HISTORY r1, RANKING_HISTORY r2
+                        WHERE
+                            r1.GAME_DTTM >= r2.GAME_DTTM
+                        GROUP BY
+                            r1.GAME_DTTM, r2.CUSTOMER
+                      ) RHH
+                  WHERE
+                     RH.CUSTOMER = RHH.CUSTOMER AND RH.GAME_DTTM = RHH.GAME_DTTM
+                 ),
+            RH.ONLINE_RANK =
+                ( SELECT rank
+                  FROM
+                      ( SELECT
+                            r2.CUSTOMER,
+                            r1.GAME_DTTM,
+                            MAX(r2.ONLINE_CPI),
+                            RANK() OVER ( PARTITION BY r1.GAME_DTTM ORDER BY MAX(r2.ONLINE_CPI) DESC ) AS rank
+                        FROM
+                            RANKING_HISTORY r1, RANKING_HISTORY r2
+                        WHERE
+                            r1.GAME_DTTM >= r2.GAME_DTTM and r2.ONLINE_CPI is not null
+                        GROUP BY
+                            r1.GAME_DTTM, r2.CUSTOMER
+                      ) RHH
+                  WHERE
+                      RH.CUSTOMER = RHH.CUSTOMER AND RH.GAME_DTTM = RHH.GAME_DTTM
+                ),
+            RH.OFFLINE_RANK =
+                ( select rank
+                  FROM
+                      ( SELECT
+                            r2.CUSTOMER,
+                            r1.GAME_DTTM,
+                            MAX(r2.OFFLINE_CPI),
+                            RANK() OVER (PARTITION BY r1.GAME_DTTM ORDER BY MAX(r2.OFFLINE_CPI) DESC ) AS rank
+                        FROM
+                            RANKING_HISTORY r1, RANKING_HISTORY r2
+                        WHERE
+                            r1.GAME_DTTM >= r2.GAME_DTTM and r2.OFFLINE_CPI is not null
+                        GROUP BY
+                            r1.GAME_DTTM, r2.CUSTOMER
+                      ) RHH
+                  WHERE
+                      RH.CUSTOMER = RHH.CUSTOMER AND RH.GAME_DTTM = RHH.GAME_DTTM
+                )
+    </update>
+
+    <select id="createView">
+        CREATE OR REPLACE VIEW VW_CAL_TIER AS
+        SELECT
+            MAX(RH.TOTAL_CPI) AS CPI,
+            RANK() OVER (ORDER BY MAX(RH.TOTAL_CPI) DESC) AS R,
+                RH.CUSTOMER AS CUSTOMER,
+            COUNT(*) OVER() AS N
+        FROM
+            RANKING_HISTORY RH
+        GROUP BY
+            RH.CUSTOMER
+        HAVING
+            MAX(RH.TOTAL_CPI) > (SELECT WEIGHT FROM STD_TIER WHERE TYPE = 'S' LIMIT 1)
+    </select>
+
+    <delete id="delAll" parameterType="com.chouette.rankingWeb.vo.RankingHistoryVO">
+        DELETE
+        FROM
+            RANKING_HISTORY
+    </delete>
+
+    <select id="getItemByCustomer" resultType="com.chouette.rankingWeb.vo.RankingHistoryVO">
+        SELECT
+            name,
+            itm,
+            totalCpi,
+            onlineCpi,
+            offlineCpi,
+            totalRank,
+            onlineRank,
+            offlineRank
+        FROM
+            ( <include refid="selectDetail"/> )RHH
+        WHERE
+            RHH.CUSTOMER = #{customer}
+
+    </select>
+
+    <select id="getPagingCount" resultType="int">
+        SELECT
+            COUNT( DISTINCT C.CUSTOMER )
+        FROM
+            RANKING_HISTORY RH
+        INNER JOIN
+            CUSTOMER C ON C.CUSTOMER = RH.CUSTOMER
+        <if test="keyword != null">
+            WHERE C.NICKNAME LIKE CONCAT('%', #{keyword}, '%')
+        </if>
+    </select>
+
+    <select id="getListByCustomer" parameterType="int" resultType="com.chouette.rankingWeb.vo.RankingHistoryVO">
+        SELECT
+            *
+        FROM
+            RANKING_HISTORY
+        WHERE
+            CUSTOMER = #{customer}
+    </select>
+
+    <select id="getTopt10ListByBranch" parameterType="int" resultType="com.chouette.rankingWeb.vo.RankingHistoryVO">
+        SELECT
+            *
+        FROM
+            (
+            <include refid="select"/>
+            WHERE
+                B.BRANCH = #{branch}
+            GROUP BY
+                RH.CUSTOMER
+            ORDER BY
+                totalRank ASC
+            ) RHH
+        WHERE
+            10 >= RHH.totalRank
+    </select>
+
+    <select id="getTopt10ListByTotal" resultType="com.chouette.rankingWeb.vo.RankingHistoryVO">
+        SELECT
+            *
+        FROM
+            (
+            <include refid="select"/>
+            GROUP BY
+                RH.CUSTOMER
+            ORDER BY
+                totalRank ASC
+            ) RHH
+        WHERE
+            10 >= RHH.totalRank
+    </select>
+
+    <select id="getTopt10ListByOnline" resultType="com.chouette.rankingWeb.vo.RankingHistoryVO">
+        SELECT
+            *
+        FROM
+            (
+            <include refid="select"/>
+            WHERE
+                RH.ONLINE_CPI IS NOT NULL
+            GROUP BY
+                RH.CUSTOMER
+            ORDER BY
+                onlineRank ASC
+            ) RHH
+        WHERE
+            10 >= RHH.onlineRank
+    </select>
+
+    <select id="getTopt10ListByOffline" resultType="com.chouette.rankingWeb.vo.RankingHistoryVO">
+        SELECT
+            *
+        FROM
+            (
+            <include refid="select"/>
+            WHERE
+                RH.OFFLINE_CPI IS NOT NULL
+            GROUP BY
+                RH.CUSTOMER
+            ORDER BY
+                offlineRank ASC
+            ) RHH
+        WHERE
+            10 >= RHH.offlineRank
+    </select>
+
+    <select id="getPagingList" resultType="com.chouette.rankingWeb.vo.RankingHistoryVO">
+        SELECT
+            *
+        FROM
+            (
+            <include refid="select"/>
+            GROUP BY
+                RH.CUSTOMER
+            ORDER BY
+                totalRank ASC
+            ) RHH
+        <if test="keyword != null">
+            WHERE RHH.NICKNAME LIKE CONCAT('%', #{keyword}, '%')
+        </if>
+        LIMIT #{pagenum}, #{contentnum}
+    </select>
+
+</mapper>

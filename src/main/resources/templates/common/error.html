@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>chpi</title>
+
+    <link rel="manifest" href="/manifest.json">
+    <link rel="shortcut icon" type="image/x-icon" href="/img/title.jpg">
+    <link rel="import" href="header.html">
+    <link rel='stylesheet' href='/css/common/header.css' type='text/css'/>
+    <link rel='stylesheet' href='/css/common/common.css' type='text/css'/>
+    <script type="module">
+        import 'https://cdn.jsdelivr.net/npm/@pwabuilder/pwaupdate';
+        const el = document.createElement('pwa-update');
+        document.body.appendChild(el);
+    </script>
+    <style>
+        h1 {
+            top: 50%;
+            left: 50%;
+            position: absolute;
+            transform: translate(-50%, -50%);
+            color: #cccccc;
+        }
+    </style>
+</head>
+<body>
+
+<header th:replace='common/header.html :: fragment-header'></header>
+
+<section class="wrapper long-long-box">
+
+    <h1>페이지를 찾을 수 없습니다.</h1>
+
+
+</section>
+</body>
+</html>

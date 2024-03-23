@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chouette.rankingWeb.dao.GameFormDAO">
+
+    <insert id="add" parameterType="com.chouette.rankingWeb.vo.GameFormVO">
+        insert into
+            GAME_FORM( GAME_NAME )
+        values
+            ( #{gameName} )
+    </insert>
+
+    <delete id="del" parameterType="com.chouette.rankingWeb.vo.GameFormVO">
+        DELETE
+        FROM
+            GAME_FORM
+        WHERE
+            GAME_FORM = #{gameForm}
+    </delete>
+
+    <select id="getList" resultType="com.chouette.rankingWeb.vo.GameFormVO">
+        select
+            *
+        from
+            GAME_FORM
+    </select>
+
+</mapper>
+

@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chouette.rankingWeb.dao.CustomerDAO">
+
+    <sql id="select">
+        SELECT
+            CUSTOMER,
+            NAME,
+            NICKNAME,
+            TEL,
+            ITM_YN,
+            ONLINE,
+            BRANCH,
+            ( SELECT FILE FROM CUSTOMER_FILE WHERE CUSTOMER = CUSTOMER.CUSTOMER ) AS file,
+            ( SELECT NAME FROM BRANCH WHERE BRANCH = CUSTOMER.BRANCH ) AS branchName,
+            ( SELECT FILE FROM BRANCH_FILE WHERE BRANCH = CUSTOMER.BRANCH AND TYPE = 'LOGO' ) AS branchLogo
+        FROM
+            CUSTOMER
+    </sql>
+
+    <insert id="add" parameterType="com.chouette.rankingWeb.vo.CustomerVO" useGeneratedKeys="true" keyProperty="customer">
+        INSERT INTO
+            CUSTOMER ( NAME, NICKNAME, TEL, ITM_YN, ONLINE, BRANCH, REG_USER, REG_DTTM )
+        VALUES
+            ( #{name}, #{nickname}, #{tel}, #{itmYn}, #{online}, #{branch}, #{regUser}, NOW() )
+    </insert>
+
+    <update id="mod" parameterType="com.chouette.rankingWeb.vo.CustomerVO">
+        UPDATE
+            CUSTOMER
+        SET
+            NAME = #{name}, NICKNAME = #{nickname}, TEL = #{tel}, ONLINE = #{online}, BRANCH = #{branch}, REG_USER = #{regUser}, REG_DTTM = now()
+        WHERE
+            CUSTOMER = #{customer}
+    </update>
+
+    <delete id="del" parameterType="com.chouette.rankingWeb.vo.CustomerVO">
+        DELETE
+        FROM
+            CUSTOMER
+        WHERE
+            CUSTOMER = #{customer}
+    </delete>
+
+    <select id="getItem" parameterType="com.chouette.rankingWeb.vo.CustomerVO" resultType="com.chouette.rankingWeb.vo.CustomerVO">
+        <include refid="select"/>
+        WHERE
+            CUSTOMER = #{customer}
+    </select>
+
+    <select id="getItemByTel" resultType="com.chouette.rankingWeb.vo.CustomerVO">
+        SELECT
+            *
+        FROM
+            CUSTOMER
+        WHERE
+            TEL = #{tel}
+    </select>
+
+    <select id="checkValidate" resultType="boolean">
+        SELECT
+            EXISTS
+            (
+                select
+                    *
+                FROM
+                    CUSTOMER
+                WHERE
+                    CASE
+                        WHEN ( #{customer} ) IS NULL THEN
+                        TEL = #{tel}
+                       <if test="online != null">
+                            OR ONLINE = #{online}
+                       </if>
+
+                        ELSE
+                        CUSTOMER != #{customer}
+                        AND (
+                            TEL = #{tel}
+                            <if test="online != null">
+                            OR ONLINE = #{online}
+                            </if>
+                        )
+                    END
+            )
+   </select>
+
+
+    <select id="getCount" resultType="int">
+        SELECT
+            COUNT(*)
+        FROM
+            CUSTOMER C
+        LEFT JOIN
+            (
+            SELECT
+                CC.CUSTOMER,
+                (
+                CASE
+                WHEN ( SELECT RH.CUSTOMER FROM RANKING_HISTORY RH WHERE RH.CUSTOMER = CC.CUSTOMER GROUP BY RH.CUSTOMER ) IS NULL
+                    THEN NULL
+                ELSE
+                (
+                    SELECT
+                        ST.TIER
+                    FROM
+                        STD_TIER ST
+                    WHERE
+                        CASE
+                        WHEN ( SELECT VCT.CPI FROM VW_CAL_TIER VCT WHERE VCT.CUSTOMER = CC.CUSTOMER ) IS NULL
+                            THEN ST.TYPE = 'S'
+                        ELSE ST.WEIGHT >= ( SELECT VCT.R / VCT.N FROM VW_CAL_TIER VCT WHERE VCT.CUSTOMER = CC.CUSTOMER )
+                        END
+                    ORDER BY
+                        ST.WEIGHT ASC
+                    LIMIT 1
+                )
+                END
+            ) AS TIER
+            FROM
+                CUSTOMER CC
+        ) T ON C.CUSTOMER = T.CUSTOMER
+        <if test="keyword != null">
+            WHERE
+                C.NICKNAME LIKE CONCAT('%', #{keyword}, '%') OR
+                C.NAME LIKE CONCAT('%', #{keyword}, '%') OR
+                C.TEL LIKE CONCAT('%', #{keyword}, '%') OR
+                T.TIER LIKE CONCAT('%', #{keyword}, '%')
+            <if test="keyword.matches('^\\d+$')">
+                OR
+                C.CUSTOMER = #{keyword} OR
+                C.ONLINE = #{keyword}
+            </if>
+        </if>
+    </select>
+
+    <select id="getPagingListIncludeTier"  resultType="com.chouette.rankingWeb.vo.CustomerVO">
+        SELECT
+            C.CUSTOMER,
+            C.NAME,
+            C.NICKNAME,
+            C.TEL,
+            C.ITM_YN,
+            C.ONLINE,
+            C.BRANCH,
+            ( SELECT NAME FROM BRANCH WHERE BRANCH = C.BRANCH ) AS branchName,
+            T.TIER
+        FROM
+            CUSTOMER C
+        LEFT JOIN
+                (
+                SELECT
+                    CC.CUSTOMER,
+                    (
+                        CASE
+                        WHEN ( SELECT RH.CUSTOMER FROM RANKING_HISTORY RH WHERE RH.CUSTOMER = CC.CUSTOMER GROUP BY RH.CUSTOMER ) IS NULL
+                            THEN NULL
+                        ELSE
+                            (
+                            SELECT
+                                ST.TIER
+                            FROM
+                                STD_TIER ST
+                            WHERE
+                                CASE
+                                WHEN ( SELECT VCT.CPI FROM VW_CAL_TIER VCT WHERE VCT.CUSTOMER = CC.CUSTOMER ) IS NULL
+                                    THEN ST.TYPE = 'S'
+                                ELSE ST.WEIGHT >= ( SELECT VCT.R / VCT.N FROM VW_CAL_TIER VCT WHERE VCT.CUSTOMER = CC.CUSTOMER )
+                                END
+                            ORDER BY
+                               ST.WEIGHT ASC
+                            LIMIT 1
+                            )
+                        END
+                    ) AS TIER
+                FROM
+                    CUSTOMER CC
+                ) T ON C.CUSTOMER = T.CUSTOMER
+        <if test="keyword != null">
+            WHERE
+            C.NICKNAME LIKE CONCAT('%', #{keyword}, '%') OR
+            C.NAME LIKE CONCAT('%', #{keyword}, '%') OR
+            C.TEL LIKE CONCAT('%', #{keyword}, '%') OR
+            T.TIER LIKE CONCAT('%', #{keyword}, '%')
+            <if test="keyword.matches('^\\d+$')">
+                OR
+                C.CUSTOMER = #{keyword} OR
+                C.ONLINE = #{keyword}
+            </if>
+        </if>
+        ORDER BY C.REG_DTTM DESC
+        LIMIT #{pagenum}, #{contentnum}
+    </select>
+
+    <select id="getPagingList" resultType="com.chouette.rankingWeb.vo.CustomerVO">
+        <include refid="select"/>
+        <if test="keyword != null">
+            WHERE
+                NICKNAME LIKE CONCAT('%', #{keyword}, '%') OR
+                NAME LIKE CONCAT('%', #{keyword}, '%') OR
+                TEL LIKE CONCAT('%', #{keyword}, '%')
+                <if test="keyword.matches('^\\d+$')">
+                    OR
+                    CUSTOMER = #{keyword} OR
+                    ONLINE = #{keyword}
+                </if>
+        </if>
+        ORDER BY REG_DTTM DESC
+        LIMIT #{pagenum}, #{contentnum}
+    </select>
+
+
+</mapper>
+

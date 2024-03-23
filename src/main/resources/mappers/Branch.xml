@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chouette.rankingWeb.dao.BranchDAO">
+
+    <sql id="select">
+        SELECT
+            *
+        FROM
+            BRANCH
+    </sql>
+
+    <sql id="selectIncludeFile">
+        SELECT
+            BRANCH,
+            NAME,
+            LOCATION,
+            KAKAO,
+            INSTAGRAM,
+            TEL,
+            COLOR,
+            COLOR_TABLE,
+            ONOFF,
+            ( SELECT FILE FROM BRANCH_FILE WHERE BRANCH = BRANCH.BRANCH AND TYPE = 'BRANCH' ) AS file,
+            ( SELECT FILE FROM BRANCH_FILE WHERE BRANCH = BRANCH.BRANCH AND TYPE = 'LOGO' ) AS fileLogo
+        FROM
+            BRANCH
+    </sql>
+
+    <insert id="add" parameterType="com.chouette.rankingWeb.vo.BranchVO" useGeneratedKeys="true" keyProperty="branch">
+        INSERT INTO
+            BRANCH ( NAME, LOCATION, KAKAO, INSTAGRAM, TEL, COLOR, COLOR_TABLE, ONOFF )
+        VALUES
+            ( #{name}, #{location}, #{kakao}, #{instagram}, #{tel}, #{color}, #{colorTable}, #{onoff} )
+    </insert>
+
+    <update id="mod" parameterType="com.chouette.rankingWeb.vo.BranchVO">
+        UPDATE
+            BRANCH
+        SET
+            NAME = #{name}, LOCATION = #{location}, KAKAO = #{kakao}, INSTAGRAM = #{instagram}, TEL = #{tel}, COLOR = #{color}, COLOR_TABLE = #{colorTable}, ONOFF = #{onoff}
+        WHERE
+            BRANCH = #{branch}
+    </update>
+
+    <update id="del" parameterType="com.chouette.rankingWeb.vo.BranchVO">
+        UPDATE
+            BRANCH
+        SET
+            DEL_YN = 'Y'
+        WHERE
+            BRANCH = #{branch}
+    </update>
+
+    <select id="getItem" parameterType="com.chouette.rankingWeb.vo.BranchVO" resultType="com.chouette.rankingWeb.vo.BranchVO">
+        <include refid="selectIncludeFile"/>
+        WHERE
+            BRANCH = #{branch} AND DEL_YN = 'N'
+    </select>
+
+    <select id="getList" resultType="com.chouette.rankingWeb.vo.BranchVO">
+        <include refid="select"/>
+        WHERE
+            DEL_YN = 'N'
+    </select>
+
+    <select id="getAllList" resultType="com.chouette.rankingWeb.vo.BranchVO">
+        <include refid="select"/>
+    </select>
+
+    <select id="getListIncludeFile" resultType="com.chouette.rankingWeb.vo.BranchVO">
+        <include refid="selectIncludeFile"/>
+        WHERE
+            ONOFF = 'F' AND DEL_YN = 'N'
+    </select>
+
+    <select id="getOffList" resultType="com.chouette.rankingWeb.vo.BranchVO">
+        <include refid="select"/>
+        WHERE
+            ONOFF = 'F' AND DEL_YN = 'N'
+    </select>
+
+</mapper>
+

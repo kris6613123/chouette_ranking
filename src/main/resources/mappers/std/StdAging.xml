@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chouette.rankingWeb.dao.std.StdAgingDAO">
+
+    <sql id="select">
+        select
+            *
+        from
+            STD_AGING
+    </sql>
+
+    <update id="pushIdx">
+        update
+            STD_AGING
+        set
+            IDX = IDX + 1
+            order by IDX desc
+    </update>
+
+
+    <insert id="add">
+        insert into
+            STD_AGING ( IDX, APPLY_DTTM, GRADE, WEIGHT, REG_USER, REG_DTTM )
+        values
+            ( 0, #{applyDttm}, #{grade}, #{weight}, #{regUser}, now() )
+    </insert>
+
+    <select id="getWeight" resultType="java.lang.Double">
+        select
+            WEIGHT
+        from
+            STD_AGING
+        where
+            IDX = (
+            select MIN(IDX)
+            from STD_AGING
+            where #{gameDttm} >= STR_TO_DATE(APPLY_DTTM, '%Y-%m-%d')
+            )
+        and DATEDIFF( now(), #{gameDttm} ) >= GRADE
+        order by GRADE desc
+        limit 1
+    </select>
+
+    <select id="getList"  resultType="com.chouette.rankingWeb.vo.std.StdAgingVO">
+        <include refid="select"/>
+    </select>
+
+    <select id="getRecentList" resultType="com.chouette.rankingWeb.vo.std.StdAgingVO">
+        SELECT
+            APPLY_DTTM,
+            GRADE,
+            WEIGHT,
+            REG_USER,
+            ( SELECT ID FROM USER WHERE USER.USER = STD_AGING.REG_USER) AS regUserId,
+            REG_DTTM
+        FROM
+            STD_AGING
+        WHERE
+            IDX = 0
+    </select>
+
+</mapper>
+

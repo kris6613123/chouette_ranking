@@ -1,0 +1,233 @@
+.profile {
+    background-color: rgba(46, 46, 46, 0.7);
+    border-radius: 15px;
+    margin-bottom: 2em;
+}
+.profile-top {
+    margin: 2em;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: nowrap;
+    gap: 2%;
+}
+
+.top-1 {
+    width: 38%;
+    background-color: rgba(0, 0, 0, 0.5);
+    box-sizing: border-box;
+    padding: 6em 0;
+}
+.top-1 > div {
+    position: relative;
+}
+.right-2 {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
+.img-customer {
+    /*position: relative;*/
+    display: block;
+    margin: auto;
+    width: 70%;
+    /*height: 70%;*/
+    object-fit: contain;
+    /*top: 50%; !* 부모 요소의 세로 중앙에서부터 이동 *!*/
+    /*left: 50%; !* 부모 요소의 가로 중앙에서부터 이동 *!*/
+    /*transform: translate(-50%, -50%); !* 이미지를 정확한 중앙으로 이동 *!*/
+}
+.img-tier{
+    z-index: 1;
+    position: absolute;
+    width: 100%;
+    /*height: 100%;*/
+    object-fit: contain;
+    top: 50%; /* 부모 요소의 세로 중앙에서부터 이동 */
+    left: 50%; /* 부모 요소의 가로 중앙에서부터 이동 */
+    transform: translate(-50%, -50%); /* 이미지를 정확한 중앙으로 이동 */
+
+}
+.top-2 {
+    width: 58%;
+    /*height: 40em;*/
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-around;
+    gap: 2em;
+}
+.right-1 {
+    width: 100%;
+    /*height: 15%;*/
+}
+.right-2 {
+    width: 100%;
+    /*height: 10%;*/
+}
+.right-3 {
+    width: 100%;
+    /*height: 65%;*/
+}
+table {
+    text-align: center;
+    width: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    border-collapse: collapse;
+    color: #bebdbd;
+}
+.col-small {
+    font-size: 0.9em;
+}
+.col-dark {
+    font-size: 1.1em;
+    /*background-color: rgba(0, 0, 0, 0.8);*/
+}
+.profile-bottom {
+    width:100%;
+}
+.btns-chart {
+    width: 100%;
+    display: flex;
+}
+.btns-chart button {
+    width: 5em;
+    padding: 0.3em;
+    background-color: rgba(0, 0, 0, 0.5);
+    color: #E9E9E9;
+    font-size: 0.8em;
+}
+.btns-chart button:hover {
+    cursor: pointer;
+    background-color: rgba(33, 33, 33, 0.5);
+}
+#line-chart {
+    width: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    padding: 1em 1.5em;
+    /*font-size: 3em;*/
+}
+h3 {
+    text-align: center;
+    color: white;
+}
+.bottom-1 td{
+    background-color: rgba(30, 30, 30, 0.6);
+}
+
+
+.tbl-scroll > .tbody {
+    overflow: auto;
+    height: 10em;
+}
+
+/* 게임 검색창 */
+.game-searcher {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 50%;
+    height: 3em;
+    margin: 5em auto 2em auto;
+}
+.game-search {
+    background: rgba(114, 111, 108, 0.5);
+    height: 100%;
+    width: 80%;
+    padding: 0 1em;
+    box-sizing: border-box;
+    border: none;
+    border-radius: 0.4em 0 0 0.4em;
+    font-size: 1em;
+    color: #E9E9E9;
+}
+.game-searcher div {
+    display: flex;
+    align-items: center;
+    height: 100%;
+    background: rgba(114, 111, 108, 0.5);
+    border-radius: 0 0.4em 0.4em 0;
+}
+.game-searcher img {
+    padding: 0 0.5em;
+    height: 1.5em;
+    object-fit: contain;
+    cursor: pointer;
+}
+/* 게임 검색창 */
+
+@media screen and (max-width: 1440px) {
+    .col-small {
+        font-size: 0.8em;
+    }
+}
+
+@media screen and (max-width: 1023px) {
+    .col-dark {
+        font-size: 0.9em;
+    }
+    .col-small {
+        font-size: 0.7em;
+    }
+
+}
+
+@media screen and (max-width: 768px) {
+    .profile-top {
+        /*margin: 1em;*/
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: nowrap;
+        gap: 2em;
+    }
+    .top-1 {
+        padding: 4em 0;
+        width: 70%;
+    }
+    .top-2 {
+        width: 100%;
+    }
+    .col-dark {
+        font-size: 1em;
+    }
+    .col-small {
+        font-size: 0.8em;
+    }
+    .btns-chart button {
+        font-size: 0.6em;
+    }
+    .game-searcher {
+        width: 60%;
+    }
+
+}
+@media screen and (max-width: 480px) {
+    .top-1 {
+        padding: 2em 0;
+    }
+    .col-dark {
+        font-size: 0.8em;
+    }
+    .col-small {
+        font-size: 0.7em;
+    }
+    .game-searcher {
+        height: 2.7em;
+    }
+    .io-game-search {
+        font-size: 0.9em;
+    }
+}
+@media screen and (max-width: 420px) {
+    .col-dark {
+        font-size: 0.7em;
+    }
+    .col-small {
+        font-size: 0.6em;
+    }
+    .game-searcher {
+        width: 70%;
+    }
+}

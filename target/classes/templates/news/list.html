@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>chpi</title>
+
+    <link rel="manifest" href="/manifest.json">
+    <link rel="shortcut icon" type="image/x-icon" href="/img/title.jpg">
+    <link rel="import" href="../common/header.html">
+    <link rel='stylesheet' href='/css/common/header.css' type='text/css'/>
+    <link rel='stylesheet' href='/css/common/table.css' type='text/css'/>
+    <link rel='stylesheet' href='/css/common/common.css' type='text/css'/>
+
+    <script src="/js/common/common.js"></script>
+    <script type="module">
+        import 'https://cdn.jsdelivr.net/npm/@pwabuilder/pwaupdate';
+        const el = document.createElement('pwa-update');
+        document.body.appendChild(el);
+    </script>
+    <script type='text/javascript'>
+        window.onload = function () {
+            let btn_page = document.querySelectorAll('.page-link');
+            btn_page.forEach( function ( btn ) {
+                btn.addEventListener( 'click', paging );
+            });
+
+            let search = document.querySelector('.img-search');
+            search.addEventListener( 'click', function () {
+                searching( document.querySelector('.io-search') );
+            });
+
+            let input = document.querySelector('.search');
+            input.addEventListener('keyup', function (evt) {
+                if(evt.keyCode === 13) {
+                    evt.target.nextElementSibling.querySelector('img').click();
+                }
+            });
+
+            let btn_del_list = document.querySelectorAll('.btn-del');
+            btn_del_list.forEach(function (btn) {
+                btn.addEventListener('click', function (evt) {
+                    delItem(evt, "news");
+                })
+            })
+        }
+    </script>
+
+
+</head>
+<body>
+
+<header th:replace='common/header.html :: fragment-header'></header>
+
+<section class="wrapper long-box">
+
+    <div class="searcher">
+        <input class='io-search search' id="subject" type='search' name='subject' placeholder='제목을 입력해주세요.'/>
+        <div> <img class="img-search" src="/img/search.png" alt=""> </div>
+    </div>
+
+    <div class="btn-mod">
+        <a href="/news/mod">게시글 등록</a>
+    </div>
+
+    <div class="news-list">
+        <h2 class="tbl-h2">&nbsp&nbsp 게시글 LIST</h2>
+        <div class="tbl-scroll">
+            <table class="tbl tbl-news">
+                <thead>
+                <tr class="tbl-title">
+                    <th>제목</th>
+                    <th>등록계정</th>
+                    <th>등록시간</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="news : ${newsList}">
+                    <td><a class="row-yellow row-search" th:text="${news.subject}" th:href="'/news/' + ${news.news} + '/mod'"></a></td>
+                    <td th:text="${news.regUserId}"></td>
+                    <td th:text="${#temporals.format(news.regDttm, 'yyyy-MM-dd HH:mm:ss')}"></td>
+                    <td><button class="btn-del" th:value="${news.news}">삭제</button></td>
+                </tr>
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div th:replace='common/pagination.html :: fragment-pagination'></div>
+
+</section>
+
+</body>
+</html>
+

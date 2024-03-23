@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chouette.rankingWeb.dao.NewsDAO">
+
+    <sql id="select">
+        SELECT
+            NEWS,
+            SUBJECT,
+            CONTENT,
+            FILE,
+            REG_USER,
+            ( SELECT ID FROM USER WHERE USER.USER = NEWS.REG_USER ) AS regUserId,
+            REG_DTTM
+        FROM
+            NEWS
+    </sql>
+
+    <insert id="add" parameterType="com.chouette.rankingWeb.vo.NewsVO" useGeneratedKeys="true" keyProperty="news">
+        INSERT INTO
+            NEWS ( SUBJECT, CONTENT, FILE, REG_USER, REG_DTTM )
+        VALUES
+            ( #{subject}, #{content}, #{file}, #{regUser}, now() )
+    </insert>
+
+    <update id="mod" parameterType="com.chouette.rankingWeb.vo.NewsVO">
+        UPDATE
+            NEWS
+        SET
+            SUBJECT = #{subject}, CONTENT = #{content}, FILE = #{file}, REG_USER = #{regUser}, REG_DTTM = now()
+        WHERE
+            NEWS = #{news}
+    </update>
+
+    <delete id="del" parameterType="com.chouette.rankingWeb.vo.NewsVO">
+        DELETE
+        FROM
+            NEWS
+        WHERE
+            NEWS = #{news}
+    </delete>
+
+    <select id="getItem" resultType="com.chouette.rankingWeb.vo.NewsVO">
+        <include refid="select"/>
+        WHERE
+            NEWS = #{news}
+    </select>
+
+    <select id="getCount" resultType="int">
+        SELECT
+            COUNT(*)
+        FROM
+            NEWS
+        <if test="keyword != null">
+            WHERE SUBJECT LIKE CONCAT('%', #{keyword}, '%')
+        </if>
+    </select>
+
+    <select id="getList" resultType="com.chouette.rankingWeb.vo.NewsVO">
+        <include refid="select"/>
+        ORDER BY REG_DTTM DESC
+    </select>
+
+    <select id="getRecentList3" resultType="com.chouette.rankingWeb.vo.NewsVO">
+        <include refid="select"/>
+        ORDER BY REG_DTTM DESC
+        limit 0, 3
+    </select>
+
+    <select id="getPagingList" resultType="com.chouette.rankingWeb.vo.NewsVO">
+        <include refid="select"/>
+        <if test="keyword != null">
+            WHERE SUBJECT LIKE CONCAT('%', #{keyword}, '%')
+        </if>
+        ORDER BY
+            REG_DTTM DESC
+        LIMIT #{pagenum}, #{contentnum}
+    </select>
+
+</mapper>
+

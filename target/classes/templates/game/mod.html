@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>chpi</title>
+
+    <link rel="manifest" href="/manifest.json">
+    <link rel="shortcut icon" type="image/x-icon" href="/img/title.jpg">
+    <link rel="import" href="../common/header.html">
+    <link rel='stylesheet' href='/css/common/header.css' type='text/css'/>
+    <link rel='stylesheet' href='/css/common/form.css' type='text/css'/>
+    <link rel='stylesheet' href='/css/common/common.css' type='text/css'/>
+
+    <script src="/js/common/common.js"></script>
+    <script type="module">
+        import 'https://cdn.jsdelivr.net/npm/@pwabuilder/pwaupdate';
+        const el = document.createElement('pwa-update');
+        document.body.appendChild(el);
+    </script>
+    <script>
+        window.onload = function () {
+
+            let tel = document.querySelector('#tel');
+            if( !!tel.value ) {
+                tel.value = telFormat( tel.value );
+            }
+            tel.addEventListener( 'keyup', function () {
+                this.value = telFormat( this.value );
+            } );
+
+            let form = document.getElementById( 'f-game' );
+            form.addEventListener('submit', function (evt) {
+                evt.preventDefault();
+                let formData = new FormData( document.getElementById('f-game') );
+                let xhr = new XMLHttpRequest();
+
+                xhr.onreadystatechange = function() {
+                    if ( xhr.readyState === XMLHttpRequest.DONE ) {
+                        if ( xhr.status === 200 ) {
+                            alert(xhr.responseText);
+                            location.href = "/game/list";
+                        }
+                        else if( xhr.status === 400 ) {
+                            alert( xhr.responseText );
+                        }
+                    }
+                };
+
+                let obj= {};
+                for (let [ key, value ] of formData.entries()) {
+                    if (key === 'tel') {
+                        obj[key] = value.replace(/-/g, "");
+                        continue;
+                    }
+                    obj[key] = value;
+                }
+                xhr.open('POST', this.action, true);
+                xhr.setRequestHeader('Content-Type', 'application/json');
+                xhr.send( JSON.stringify(obj) );
+            });
+        }
+
+    </script>
+</head>
+<body>
+<header th:replace='common/header.html :: fragment-header'></header>
+
+<section class="wrapper box">
+    <div class="container">
+
+        <h2>게임 등록</h2>
+
+        <form id="f-game" method="post" action="/game/mod/p">
+            <input hidden="hidden" id="excelYn" name="excelYn" value="Y">
+            <input hidden="hidden" id="game" name="game" th:value="${game.game}">
+
+            <div class="form-group">
+                <label for="gameDttm"> *게임날짜
+                    <input type="date" id="gameDttm" name="gameDttm" th:value="${game.gameDttm}" required/>
+                </label>
+            </div>
+
+            <div class="form-group">
+                <fieldset>
+                    <legend>On/Off</legend>
+                    <label for="onoff1">
+                        <input type="radio" id="onoff1" name="onoff" value="F" th:checked="${game.onoff == 'F' || game.onoff eq null}" th:onclick="${game.game != null} ? 'return(false)' : ''"/> 오프라인
+                    </label>
+                    <label for="onoff2">
+                        <input type="radio" id="onoff2" name="onoff" value="N" th:checked="${game.onoff == 'N'}" th:onclick="${game.game != null} ? 'return(false)' : ''" /> 온라인
+                    </label>
+                </fieldset>
+            </div>
+
+
+            <div class="form-group">
+                <label for="name"> *게임명
+                    <select id="name" name="name" required>
+                        <option th:if="${game.game != null}" th:value="${game.name}" th:text="${game.name}" selected></option>
+                        <option th:if="${game.game == null}" value="" selected disabled hidden>선택해주세요</option>
+                        <option th:each="gameForm : ${gameFormList}" th:value="${gameForm.gameName}" th:text="${gameForm.gameName}"></option>
+                    </select>
+                </label>
+            </div>
+
+            <div class="form-group">
+                <label for="buyin"> *바이인 금액
+                    <input type="text" id="buyin" name="buyin" placeholder="*바이인 금액" th:value="${game.buyin}" required/>
+                </label>
+            </div>
+
+            <div class="form-group">
+                <label for="totalBuyin"> *총 바이인 금액
+                    <input type="text" id="totalBuyin" name="totalBuyin" placeholder="*총 바이인 금액" th:value="${game.totalBuyin}" required/>
+                </label>
+            </div>
+
+            <div class="form-group">
+                <label for="reward"> *상금
+                    <input type="text" id="reward" name="reward" placeholder="*우승 상금" th:value="${game.reward}" required/>
+                </label>
+            </div>
+
+            <div class="form-group">
+                <label for="rewardWeight"> *상금 비율
+                    <input type="text" id="rewardWeight" name="rewardWeight" placeholder="*상금 비율" th:value="${game.rewardWeight}" required/>
+                </label>
+            </div>
+
+            <div class="form-group">
+                <label for="tel"> *손님 전화번호
+                    <input type="tel" id="tel" name="tel" placeholder="*전화번호" pattern="[0-9]{3}-[0-9]{3,4}-[0-9]{4}" th:value="${game.tel}" required/>
+                </label>
+            </div>
+
+
+            <br/>
+
+            <div class="form-group">
+                <button type="submit" class="btn-add">게임 등록</button>
+            </div>
+        </form>
+
+        <br>
+
+    </div>
+</section>
+
+</body>
+
+</html>

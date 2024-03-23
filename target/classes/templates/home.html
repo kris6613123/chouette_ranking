@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>chpi</title>
+
+    <link rel="manifest" href="/manifest.json">
+    <link rel="shortcut icon" type="image/x-icon" href="/img/title.jpg">
+    <link rel="import" href="common/header.html">
+    <link rel='stylesheet' href='/css/common/header.css' type='text/css'/>
+    <link rel='stylesheet' href='/css/common/table.css' type='text/css'/>
+    <link rel='stylesheet' href='/css/common/common.css' type='text/css'/>
+    <link rel='stylesheet' href='/css/home.css' type='text/css'/>
+    <link rel='stylesheet' href='/css/news.css' type='text/css'/>
+
+    <script src="/js/common/common.js"></script>
+    <script type="module">
+        import 'https://cdn.jsdelivr.net/npm/@pwabuilder/pwaupdate';
+        const el = document.createElement('pwa-update');
+        document.body.appendChild(el);
+    </script>
+    <script type='text/javascript'>
+        window.onload = function(){
+            setNumWithComma();
+            let searchCustomer = document.querySelector('.img-search');
+            searchCustomer.addEventListener( 'click', function () {
+                searchingByCustomUrl( "/search", document.querySelector('.io-search') );
+            });
+
+            let input = document.querySelector('.search');
+            input.addEventListener('keyup', function (evt) {
+                if(evt.keyCode === 13) {
+                    evt.target.nextElementSibling.querySelector('img').click();
+                }
+            });
+
+            let textList = document.querySelectorAll('.news-item3');
+            textList.forEach( function ( text ) {
+                text.addEventListener('click', function ( evt ) {
+                    location.href = "/news/" + this.id + "/view";
+                })
+            });
+        }
+    </script>
+</head>
+<body>
+
+<header th:replace='common/header.html :: fragment-header'></header>
+
+<section class="wrapper long-long-box">
+
+    <div class="searcher">
+        <input class='io-search search' id="customer" type='search' name='customer' placeholder='플레이어를 입력해주세요.'/>
+        <div> <img class="img-search" src="/img/search.png" alt=""> </div>
+    </div>
+
+    <div class="div-flex home-ranking">
+        <div class="flex3-item">
+            <h2 class="tbl-h2">&nbsp&nbsp TOTAL</h2>
+            <div class="tbl-scroll">
+                <table class="tbl">
+                    <thead>
+                    <tr>
+                        <th>RANK</th>
+                        <th>SHOP</th>
+                        <th>PLAYER</th>
+                        <th>TIER</th>
+                        <th>SCORE</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each='total, stat : ${totalList}' th:style="${total.totalRank == 1 ? 'border: 1px solid #D6A867' : ''}">
+                        <td th:if="${total.totalRank == 1}"><img class="image-fit" src="/img/prize.png"></td>
+                        <td class="row-rank" th:if="${total.totalRank > 1}" th:style="${total.totalRank <= 3 ? 'color: #D6A867' : ''}" th:text='${total.totalRank}'></td>
+                        <td th:text='${total.branchName}'></td>
+                        <td class="td-all-break"><a class="row-yellow row-search" th:text="${total.nickname}" th:href="'/customer/' + ${total.customer} + '/view'"></a></td>
+                        <td class="td-early-word-break" th:text='${total.tier}'></td>
+                        <td class="row-yellow big-number td-word-break" th:text="${total.totalCpi}  + ' pts'"></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="flex3-item div-offline">
+            <h2 class="tbl-h2">&nbsp&nbsp OFF LINE</h2>
+            <div class="tbl-scroll">
+                <table class="tbl">
+                    <thead>
+                    <tr>
+                        <th>RANK</th>
+                        <th>SHOP</th>
+                        <th>PLAYER</th>
+                        <th>TIER</th>
+                        <th>SCORE</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each='offline, stat : ${offlineList}' th:style="${offline.offlineRank == 1 ? 'border: 1px solid #D6A867' : ''}">
+                        <td th:if="${offline.offlineRank == 1}"><img class="image-fit" src="/img/prize.png"></td>
+                        <td class="row-rank" th:if="${offline.offlineRank > 1}" th:style="${offline.offlineRank <= 3 ? 'color: #D6A867' : ''}" th:text='${offline.offlineRank}'></td>
+                        <td th:text='${offline.branchName}'></td>
+                        <td class="td-all-break"><a class="row-yellow row-search" th:text="${offline.nickname}" th:href="'/customer/' + ${offline.customer} + '/view'"></a></td>
+                        <td class="td-early-word-break" th:text='${offline.tier}'></td>
+                        <td class="row-yellow big-number td-word-break" th:text="${offline.offlineCpi}  + ' pts'"></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="flex3-item div-online">
+            <h2 class="tbl-h2">&nbsp&nbsp ON LINE</h2>
+            <div class="tbl-scroll">
+                <table class="tbl">
+                    <thead>
+                    <tr>
+                        <th>RANK</th>
+                        <th>SHOP</th>
+                        <th>PLAYER</th>
+                        <th>TIER</th>
+                        <th>SCORE</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each='online, stat : ${onlineList}' th:style="${online.onlineRank == 1 ? 'border: 1px solid #D6A867' : ''}">
+                        <td th:if="${online.onlineRank == 1}"><img class="image-fit" src="/img/prize.png"></td>
+                        <td class="row-rank" th:if="${online.onlineRank > 1}" th:style="${online.onlineRank <= 3 ? 'color: #D6A867' : ''}" th:text='${online.onlineRank}'></td>
+                        <td th:text='${online.branchName}'></td>
+                        <td class="td-all-break"><a class="row-yellow row-search" th:text="${online.nickname}" th:href="'/customer/' + ${online.customer} + '/view'"></a></td>
+                        <td class="td-early-word-break" th:text='${online.tier}'></td>
+                        <td class="row-yellow big-number td-word-break" th:text="${online.onlineCpi}  + ' pts'"></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="news-title">NEWS</div>
+
+    <div class="div-flex">
+        <div class="news-item3" th:id="${news.news}" th:each="news : ${newsList}">
+            <div class="image" th:style="${news.file} ? '' : 'background-color: rgba(62, 62, 62, 1);'">
+                <img class="image-fit-cover" th:if="${news.file}" th:src="@{'/images/' + ${news.file}}" alt=" " />
+                <img class="image-small" th:unless="${news.file}" src="/img/baseNews.png" alt=" " />
+            </div>
+
+            <div class="text">
+                <p class="p-subject" th:text="${news.subject}"></p>
+            </div>
+        </div>
+    </div>
+
+
+</section>
+</body>
+</html>

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chouette.rankingWeb.dao.std.StdWinningRewardDAO">
+
+    <sql id="select">
+        select
+            *
+        from
+            STD_WINNING_REWARD
+    </sql>
+
+    <update id="pushIdx">
+        update
+            STD_WINNING_REWARD
+        set
+            IDX = IDX + 1
+            order by IDX desc
+    </update>
+
+    <insert id="add">
+        insert into
+            STD_WINNING_REWARD ( IDX, APPLY_DTTM, REWARD_WEIGHT, WEIGHT, REG_USER, REG_DTTM )
+        values
+            ( 0, #{applyDttm}, #{rewardWeight}, #{weight}, #{regUser}, now() )
+    </insert>
+
+    <select id="getWeight" resultType="java.lang.Double">
+        select
+            WEIGHT
+        from
+            STD_WINNING_REWARD
+        where
+            IDX = (
+            select MIN(IDX)
+            from STD_WINNING_BUYIN
+            where #{gameDttm} >= STR_TO_DATE(APPLY_DTTM, '%Y-%m-%d')
+        )
+        and REWARD_WEIGHT = #{rewardWeight}
+        limit 1
+    </select>
+
+    <select id="getList"  resultType="com.chouette.rankingWeb.vo.std.StdWinningRewardVO">
+        <include refid="select"/>
+    </select>
+
+    <select id="getRecentList" resultType="com.chouette.rankingWeb.vo.std.StdWinningRewardVO">
+        SELECT
+            APPLY_DTTM,
+            REWARD_WEIGHT,
+            WEIGHT,
+            REG_USER,
+            ( SELECT ID FROM USER WHERE USER.USER = STD_WINNING_REWARD.REG_USER) AS regUserId,
+            REG_DTTM
+        FROM
+            STD_WINNING_REWARD
+        WHERE
+            IDX = 0
+    </select>
+
+</mapper>
+

@@ -1,0 +1,141 @@
+
+.container {
+    color: white;
+    font-size: 16px;
+}
+#location-header {
+    width: 100%;
+    margin-bottom: 2em;
+}
+#location-header > img {
+    width: 100%;
+}
+#location-header > .text-overlay {
+    color: rgba(255, 255, 255, 0.8);
+    height: 50%;
+    font-size: 4em;
+    font-weight: bold;
+    font-family: serif;
+}
+.location-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 2em;
+    width: 100%;
+    background-color: rgba(46, 46, 46, 0.7);
+    margin-bottom: 2em;
+}
+/*이미지 위에 텍스트 css*/
+.div-overlay {
+    width: 100%;
+    position: relative;
+    display: flex;
+}
+.div-overlay img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.text-overlay {
+    position: absolute;
+    display: flex;
+    width: 100%;
+    height: 35%;
+    top:50%;
+    background-color: rgba(0, 0, 3, 0.4);
+    align-items: center;
+    justify-content: center;
+    transform: translate(0, -50%);
+    color: white;
+    font-weight: bold;
+    font-size: 2.5em;
+}
+/*이미지 위에 텍스트 css*/
+.div-overlay img {
+    max-width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+.item-img {
+    flex: 1;
+    width: 30%;
+}
+.item-explanation > div {
+    padding: 0.5em;
+}
+.item-explanation > div > a {
+    color: white;
+}
+.item-explanation {
+    flex: 2;
+    width: 100%;
+    display: flex;
+    flex-direction: column; /*수평 정렬*/
+    word-break: break-all;
+}
+.div-flex-row2 {
+    display: flex;
+    align-items: center;
+    gap: 0.5em;
+}
+
+
+
+@media screen and (max-width: 1440px) {
+    .container {
+        font-size: 13px;
+    }
+}
+@media screen and (max-width: 1023px) {
+    .container {
+        font-size: 11px;
+    }
+    .div-flex-row2 > img {
+        width: 20px;
+        height: 20px;
+    }
+}
+@media screen and (max-width: 768px) {
+    .div-flex-row2 > img {
+        width: 15px;
+        height: 15px;
+    }
+    .location-item {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        /*gap: 1em;*/
+        width: 70%;
+        margin: 1em auto;
+        font-size: 20px;
+    }
+    .item-img {
+        width: 100%;
+    }
+    .item-explanation {
+        align-items: center;
+    }
+    #location-header > img {
+        content: url("/img/locationHeader2.jpg");
+    }
+
+}
+@media screen and (max-width: 480px) {
+    .container {
+        font-size: 8px;
+    }
+    .div-flex-row2 > img {
+        width: 10px;
+        height: 10px;
+    }
+    .location-item {
+        font-size: 15px;
+    }
+}
+@media screen and (max-width: 420px) {
+    .container {
+        font-size: 7px;
+    }
+}

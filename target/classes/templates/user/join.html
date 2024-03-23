@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="manifest" href="/manifest.json">
+    <link rel="import" href="../common/header.html">
+    <link rel='stylesheet' href='/css/common/header.css' type='text/css'/>
+    <link rel='stylesheet' href='/css/common/form.css' type='text/css'/>
+    <link rel='stylesheet' href='/css/common/common.css' type='text/css'/>
+
+    <script src="/js/common/common.js"></script>
+    <script type="module">
+        import 'https://cdn.jsdelivr.net/npm/@pwabuilder/pwaupdate';
+        const el = document.createElement('pwa-update');
+        document.body.appendChild(el);
+    </script>
+    <script>
+        window.onload = function () {
+            let form = document.querySelector('#f-join');
+            form.addEventListener('submit', function (evt) {
+                defaultApply( evt, document.getElementById('f-join'), "" );
+            });
+        }
+
+    </script>
+</head>
+<body>
+<header th:replace='common/header.html :: fragment-header'></header>
+
+<section class="wrapper box">
+    <div class="container">
+
+        <h2>회원가입</h2>
+
+        <form id="f-join" method="post" action="join/p">
+            <div class="form-group">
+                <label for="id"></label>
+                <input type="text" id="id" name="id" placeholder="*아이디" maxlength="15" required/>
+            </div>
+
+            <div class="form-group">
+                <label for="pwd"></label>
+                <input type="password" id="pwd" name="pwd" placeholder="*비밀번호" required/>
+            </div>
+
+            <div class="form-group">
+                <label for="name"></label>
+                <input type="text" id="name" name="name" placeholder="*이름" required/>
+            </div>
+
+            <div class="form-group">
+                <label for="auth"></label>
+                <select id="auth" name="auth">
+                    <option value="ADMIN" selected="selected">일반 관리자</option>
+                    <option value="ROOT">최고 관리자</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="branch">
+                    <select id="branch" name="branch" required>
+                        <option th:each="branch : ${branchList}" th:value="${branch.branch}" th:text="${branch.name}"></option>
+                    </select>
+                </label>
+            </div>
+
+            <div class="form-group">
+                <button type="submit" class="btn-add">회원가입</button>
+            </div>
+        </form>
+    </div>
+</section>
+</body>
+</html>

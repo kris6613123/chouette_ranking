@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>chpi</title>
+
+    <link rel="manifest" href="/manifest.json">
+    <link rel="shortcut icon" type="image/x-icon" href="/img/title.jpg">
+    <link rel="import" href="../common/header.html">
+    <link rel='stylesheet' href='/css/common/header.css' type='text/css'/>
+    <link rel='stylesheet' href='/css/common/table.css' type='text/css'/>
+    <link rel='stylesheet' href='/css/common/common.css' type='text/css'/>
+
+    <script src="/js/common/common.js"></script>
+    <script type="module">
+        import 'https://cdn.jsdelivr.net/npm/@pwabuilder/pwaupdate';
+        const el = document.createElement('pwa-update');
+        document.body.appendChild(el);
+    </script>
+    <script>
+        window.onload = function () {
+            setNumWithComma();
+
+            let btn_page = document.querySelectorAll('.page-link');
+            btn_page.forEach( function ( btn ) {
+                btn.addEventListener( 'click', paging );
+            });
+
+            let search = document.querySelector('.img-search');
+            search.addEventListener( 'click', function () {
+                searching( document.querySelector('.io-search') );
+            });
+
+            let input = document.querySelector('.search');
+            input.addEventListener('keyup', function (evt) {
+                if(evt.keyCode === 13) {
+                    evt.target.nextElementSibling.querySelector('img').click();
+                }
+            });
+
+            let btn_del_list = document.querySelectorAll('.btn-del');
+            btn_del_list.forEach(function (btn) {
+                btn.addEventListener('click', function(evt) {
+                    if(evt.target.classList.contains('btn-del-form')) {
+                        delItem( evt, "game/form" );
+                    }
+                    else {
+                        delItem(evt, "game");
+                    }
+               });
+            });
+
+            let targetID;
+            document.querySelectorAll('.btn-open').forEach(function (btn) {
+                btn.addEventListener('click', function() {
+                    targetID = this.getAttribute('href');
+                    document.querySelector(targetID).style.display = 'block';
+                });
+            });
+            document.getElementById('f-gameForm').addEventListener('submit', function(evt) {
+                defaultApply( evt, document.getElementById('f-gameForm'), '/game/list' )
+            });
+            document.querySelector('.btn-filter').addEventListener('click', function (evt) {
+                let searchParams = new URLSearchParams( location.search );
+                if( searchParams.get('pagenum') ) {
+                    searchParams.set('pagenum', 1);
+                }
+                let start = document.getElementById('date-start').value;
+                let end = document.getElementById('date-end').value;
+                if ( !!start && !!end ){
+                    searchParams.set( "start", start );
+                    searchParams.set( "end", end );
+                }
+                else {
+                    searchParams.delete("start");
+                    searchParams.delete("end");
+                }
+                searchParams.set( "state", document.getElementById('state').value );
+                location.href = location.pathname + "?" + searchParams;
+            });
+            document.querySelectorAll('.btn-close').forEach(function (btn) {
+                btn.addEventListener('click', function() {
+                    this.parentNode.parentNode.style.display = 'none';
+                });
+            });
+
+
+        }
+    </script>
+    <style>
+
+        .pop-wrap{position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.5); text-align:center;}
+        .pop-wrap:after{
+            display:inline-block; height:100%; vertical-align:middle; content:'';
+        }
+        .pop-inner{
+            display:inline-block; padding: 2em; background:#fff; width:15em;  font-size:1em;
+        }
+        .btn-close {
+            display: block;
+            margin: 1em auto 0 auto;
+        }
+
+    </style>
+</head>
+<body>
+<header th:replace='common/header.html :: fragment-header'></header>
+
+<section class="wrapper long-long-box">
+
+    <div class="searcher">
+        <input class='io-search search' id="game" type='search' name='game' placeholder='게임명을 입력해주세요.'/>
+        <div> <img class="img-search" src="/img/search.png" alt=""> </div>
+    </div>
+
+    <div class="btn-mod">
+        <a href="#pop-filter" class="btn-open">필터링</a>
+        <a href="/game/mod?excel=Y">액셀 등록</a>
+        <a href="/game/mod?excel=N">단일 등록</a>
+    </div>
+
+    <div class="game-list">
+        <h2 class="tbl-h2">&nbsp&nbsp 게임 LIST</h2>
+        <div class="tbl-scroll">
+            <table class="tbl tbl-game">
+                <thead>
+                <tr class="tbl-title">
+                    <th>상태</th>
+                    <th>게임날짜</th>
+                    <th>온/오프</th>
+                    <th>게임명</th>
+                    <th>손님</th>
+                    <th>바이인</th>
+                    <th>총 바이인</th>
+                    <th>상금</th>
+                    <th>상금비율</th>
+                    <th>등록계정</th>
+                    <th>등록시간</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="game, stat : ${gameList}">
+                    <td class="row-state"><a th:href="'/game/'+ ${game.game} + '/mod'" th:style="${game.state} == 'SUCCESS' ? 'color:#D6A867' : ( ${game.state} == 'FAIL' ? 'color:#da2626' : 'color:#66afe0' )" th:text="${game.state}"></a></td>
+                    <td th:text="${game.gameDttm}"></td>
+                    <td th:text="${game.onoff}"></td>
+                    <td th:text="${game.name}"></td>
+                    <td th:text="${game.customer}"></td>
+                    <td class="big-number" th:text="${game.buyin}"></td>
+                    <td class="big-number" th:text="${game.totalBuyin}"></td>
+                    <td class="big-number" th:text="${game.reward}"></td>
+                    <td th:text="${game.rewardWeight}"></td>
+                    <td th:text="${game.regUserId}"></td>
+                    <td th:text="${#temporals.format(game.regDttm, 'yyyy-MM-dd HH:mm:ss')}"></td>
+                    <td><button class="btn-del" th:value="${game.game}">삭제</button></td>
+                </tr>
+                <tr th:if='${gameList.size() == 0}'>
+                    <td colspan="12">일치하는 결과가 없습니다.</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div th:replace='common/pagination.html :: fragment-pagination'></div>
+
+    <div class="wrap">
+        <div id="pop-filter" class="pop-wrap" style="display:none;">
+            <div class="pop-inner">
+                <div>
+                    <input type="date" id="date-start" name="start" th:max="${#temporals.format(#temporals.createNow(), 'yyyy-MM-dd')}" th:value="${#request.getParameter('start')}">
+                    <input type="date" id="date-end" name="end" th:max="${#temporals.format(#temporals.createNow(), 'yyyy-MM-dd')}" th:value="${#request.getParameter('end')}">
+                </div>
+                <div>
+                    <label for="state">상태:
+                        <select id="state" name="state" required>
+                            <option value="ALL" th:selected="${#request.getParameter('state') == 'ALL' || #request.getParameter('state') == null}">모두</option>
+                            <option value="SUCCESS" th:selected="${#request.getParameter('state') == 'SUCCESS'}">SUCCESS</option>
+                            <option value="READY" th:selected="${#request.getParameter('state') == 'READY'}">READY</option>
+                            <option value="FAIL" th:selected="${#request.getParameter('state') == 'FAIL'}">FAIL</option>
+                        </select>
+                    </label>
+                </div>
+                <button type="button" class="btn-filter">확인</button>
+                <button type="button" class="btn-close">닫기</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="long-box" style="margin: 3em auto;">
+        <div class="btn-mod">
+            <a href="#pop-info" class="btn-open">게임명 추가</a>
+        </div>
+
+        <div class="gameForm-list">
+            <h2 class="tbl-h2">&nbsp&nbsp 게임명 LIST</h2>
+            <div class="tbl-scroll">
+                <table class="tbl tbl-gameForm">
+                    <thead>
+                    <tr class="tbl-title">
+                        <th>게임명</th>
+                        <th></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="form, stat : ${gameFormList}">
+                        <td th:text="${form.gameName}"></td>
+                        <td><button class="btn-del btn-del-form" th:value="${form.gameForm}">삭제</button></td>
+                    </tr>
+                    <tr th:if='${gameFormList.size() == 0}'>
+                        <td colspan="2">등록된 게임명이 없습니다.</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="wrap">
+        <div id="pop-info" class="pop-wrap" style="display:none;">
+            <div class="pop-inner">
+                <form id="f-gameForm" method="post" action="/game/form/mod/p">
+                    <input type="text" name="gameName" placeholder="게임명" required/>
+                    <button type="submit" class="btn-submit">확인</button>
+                </form>
+                <button type="button" class="btn-close">닫기</button>
+            </div>
+        </div>
+    </div>
+
+
+</section>
+</body>
+</html>

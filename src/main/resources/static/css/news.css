@@ -1,0 +1,247 @@
+/*news main css*/
+#news-header {
+    width: 100%;
+    margin-bottom: 2em;
+}
+.div-flex {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    flex-wrap: wrap;
+}
+.news-item2 {
+    width: 48%;
+    gap: 4%;
+    height: 35em;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    background-color: rgba(229, 220, 220, 0.7);
+    padding: 1.2em;
+    margin-bottom: 3em;
+    border-radius: 0.5rem;
+    box-sizing: border-box;
+}
+.image {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 80%;
+    width: 100%;
+}
+.image > img {
+    border-radius: 0.5rem;
+}
+.text {
+    background-color: rgba(62, 62, 62, 1);
+    display: flex;
+    align-items: center;
+    width: 100%;
+    height: 15%;
+    font-size: 1.2em;
+    border-radius: 0.5rem;
+    color: #E9E9E9 ;
+}
+.text > p {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.p-subject, .p-content {
+    padding: 1em;
+}
+/*news main css*/
+
+/*home.html news.css*/
+.news-title {
+    width: 3em;
+    display: block;
+    margin: 1em auto;
+    border-radius: 1.5em;
+    padding: 0.5em 1em;
+    text-align: center;
+    color: #D6A867;
+    background-color: #3A3A3A;
+    font-size: 1.2em;
+
+}
+.news-item3 {
+    width: 31%;
+    gap: 2%;
+    height: 25em;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    background-color: rgba(229, 220, 220, 0.7);
+    padding: 1em;
+    margin-bottom: 3em;
+    border-radius: 0.5rem;
+    box-sizing: border-box;
+}
+/*home.html news.css*/
+
+
+/*news view css*/
+#news-view {
+    display: block;
+    margin: auto;
+    width: 100%;
+    background-color: rgba(229, 220, 220, 0.7);
+    color: #E9E9E9;
+    border-radius: 0.5rem;
+    font-size: 1.2em;
+}
+.news-subject {
+    margin: 0.6em;
+    font-size: 1.2em;
+    border-radius: 0.5rem;
+    box-sizing: border-box;
+}
+.news-content{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    margin: 0.9em;
+    font-size: 0.8em;
+    border-radius: 0.5rem;
+    min-height: 40em;
+}
+.news-content .p-content img, .p-content iframe {
+    width: 50%;
+    height: 50%;
+    object-fit: contain;
+}
+.p-content iframe {
+    display: block;
+    border: none;
+    /*height: 100%;*/
+    width: 100%;
+
+}
+.p-content a {
+    color: #cccccc;
+}
+.dataInfo {
+    text-align: right;
+    margin: 0.6em;
+    font-size: 1.2em;
+}
+.news-subject, .news-content {
+    background-color: rgba(62, 62, 62, 1);
+}
+.video {
+    position: relative;
+    /*padding-top: 56%;*/
+    padding-top: 28.125%; /* 변경된 높이 값 */
+    width: 50%;
+    height: 0;
+    margin: auto;
+}
+
+/* iframe */
+.video > iframe {
+    /*border: 1px solid #E9E9E9;*/
+
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+/*news view css*/
+
+
+/*news mod*/
+.news-form > form > .news-subject {
+    margin: 0;
+}
+.news-form input {
+    padding: 1em;
+}
+.news-form input, .news-form textarea {
+    width: 100%;
+    background-color: rgba(62, 62, 62, 1);
+    color: #E9E9E9;
+}
+textarea > a {
+    text-decoration: #cccccc;
+    color: #cccccc;
+}
+#form-apply {
+    display: block;
+    margin: 0.5em auto;
+    padding: 0.5em 2em;
+}
+/*news mod css*/
+
+
+
+@media screen and (min-width: 3000px) {
+    .news-item2 {
+        height: 50em;
+    }
+}
+@media screen and (max-width: 1440px) {
+    .news-content{
+        min-height: 33em;
+    }
+    .news-item3 {
+        height: 20em;
+        padding: 0.8em;
+    }
+}
+@media screen and (max-width: 1023px) {
+    .news-item2 {
+        height: 30em;
+        padding: 1em;
+    }
+    .news-item3 {
+        width: 100%;
+        padding: 0.5em;
+    }
+}
+@media screen and (max-width: 768px) {
+    .news-item2 {
+        width: 100%;
+        height: 35em;
+        padding: 0.9em;
+    }
+    .news-subject {
+        margin: 0.4em;
+        font-size: 1.2em;
+
+    }
+    .news-content{
+        margin: 0.6em;
+        font-size: 0.8em;
+    }
+    .dataInfo {
+        margin: 0.4em;
+    }
+    #news-view {
+        font-size: 1em;
+    }
+    .news-content {
+        min-height: 30em;
+    }
+    #news-header {
+        content: url("/img/newsHeader2.jpg");
+    }
+}
+@media screen and (max-width: 480px) {
+    .news-item2 {
+        height: 25em;
+        padding: 0.7em;
+    }
+    .text {
+        font-size: 1em;
+    }
+}
+@media screen and (max-width: 420px) {
+    .news-item2 {
+        padding: 0.6em;
+    }
+}

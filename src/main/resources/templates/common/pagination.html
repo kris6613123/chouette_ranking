@@ -1,0 +1,16 @@
+<div th:fragment='fragment-pagination' class="pagination-container">
+    <ul class="pagination">
+        <!-- 이전 페이지 버튼 -->
+        <li class="page-item">
+            <button class="page-link" th:value="${page.startPage - 1}" th:hidden="${page.prev eq false}"> < </button>
+        </li>
+        <!-- 페이지 번호 목록 -->
+        <li th:each="idx : ${#numbers.sequence(page.startPage, page.endPage)}" class="page-item">
+            <button class="page-link" th:text="${idx}" th:value="${idx}" th:disabled="${idx eq page.pagenum}" th:style="${idx eq page.pagenum} ? 'color:#A7A7A7' : '' "></button>
+        </li>
+        <!-- 다음 페이지 버튼 -->
+        <li class="page-item">
+            <button class="page-link" th:value="${page.endPage + 1}" th:hidden="${page.next eq false}"> > </button>
+        </li>
+    </ul>
+</div>

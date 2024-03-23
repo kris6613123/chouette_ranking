@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>chpi</title>
+
+    <link rel="manifest" href="/manifest.json">
+    <link rel="shortcut icon" type="image/x-icon" href="/img/title.jpg">
+    <link rel="import" href="../common/header.html">
+    <link rel='stylesheet' href='/css/common/header.css' type='text/css'/>
+    <link rel='stylesheet' href='/css/std.css' type='text/css'/>
+    <link rel='stylesheet' href='/css/common/common.css' type='text/css'/>
+
+    <script src="/js/std.js"></script>
+    <script type="module">
+        import 'https://cdn.jsdelivr.net/npm/@pwabuilder/pwaupdate';
+        const el = document.createElement('pwa-update');
+        document.body.appendChild(el);
+    </script>
+    <script>
+        window.onload = function () {
+            let table = document.querySelector('.tbl');
+            let rowCount = table.rows.length; // 현재 테이블의 행 수  + 1
+
+            let row_add = document.querySelector('.row-add');
+            row_add.addEventListener('click', function (evt) {
+                addWinningAgingRow( this.value, ++rowCount );
+            });
+
+            let row_del = document.querySelectorAll('.row-del');
+            row_del.forEach(function (btn) {
+                btn.addEventListener( 'click', delRow );
+            });
+
+            let form = document.querySelector( '#f-std' );
+            form.addEventListener( 'submit', apply );
+        }
+        function apply(evt) {
+            evt.preventDefault();
+            let data = new FormData( document.getElementById( 'f-std' ) );
+            let xhr = new XMLHttpRequest();
+
+            xhr.onreadystatechange = function() {
+                if ( xhr.readyState === XMLHttpRequest.DONE ) {
+                    if ( xhr.status === 200 ) {
+                        alert( xhr.responseText );
+                        location.reload();
+                    }
+                    else if( xhr.status === 400 ) {
+                        alert( xhr.responseText );
+                    }
+                }
+            };
+
+            let dataArray = [];
+            let obj = {};
+            for (let [key, value] of data.entries()) {
+                if (key === 'applyDttm'){
+                    continue;
+                }
+                obj[key] = value;
+
+                if ( Object.keys(obj).length === 2 ) {
+                    obj['applyDttm'] = document.getElementById('applyDttm').value;
+                    dataArray.push(obj);
+                    obj = {};
+                }
+            }
+            xhr.open('POST', this.action, true);
+            xhr.setRequestHeader('Content-Type', 'application/json');
+            xhr.send( JSON.stringify( dataArray ) );
+        }
+
+
+    </script>
+
+</head>
+<body>
+
+<header th:replace='common/header.html :: fragment-header'></header>
+
+<section class="wrapper long-box">
+
+    <div th:replace="common/stdHeader.html :: fragment-stdHeader"></div>
+
+    <div class="std-form">
+
+        <p class='formula' th:if='${std eq "buyin"}'> winning 지수 = 상금 x {바이인 금액별 적용 상수} x 보정 레이크 상수 x 0.01% </p>
+        <p class='formula' th:if='${std eq "reward"}'> winning 지수 = 상금 x 바이인 금액별 적용 상수 x {배당률에 따른 보정 레이크 상수} x 0.01% </p>
+        <p class='formula' th:if='${std eq "aging"}'> aging 지수 = {날짜별 적용 상수} </p>
+
+        <form action='mod/p' class='io-form' id='f-std' method='post'>
+            <div class="tbl-scroll">
+                <fieldset>
+                    <legend><input type="date" id="applyDttm" class="io" name="applyDttm" th:min="${stdList.get(0).applyDttm}" th:value="${stdList.get(0).applyDttm}" required></legend>
+                    <table class="tbl" id="tbl-buyin" th:if="${std eq 'buyin'}">
+                        <thead>
+                        <tr>
+                            <th>구간 최소값</th>
+                            <th>{적용 상수}</th>
+                            <th></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="winning, stat : ${stdList}">
+                            <td>
+                                <input class="io" name="grade" th:value="${winning.grade}" th:readonly="${stat.count == 1}" required/>만
+                            </td>
+                            <td>
+                                <input class="io" name="weight" th:value="${winning.weight}" required/>
+                            </td>
+                            <td>
+                                <button type="button" class="row-del" th:value="'row-del-' + ${stat.count}" th:style="${stat.count == 1 ? 'visibility:hidden' : ''}">X</button>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+
+                    <table class="tbl" id="tbl-reward" th:if="${std eq 'reward'}">
+                        <thead>
+                        <tr>
+                            <th> 배당률 % 100 </th>
+                            <th> {레이크 상수} </th>
+                            <th> </th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="winning, stat : ${stdList}">
+                            <td>
+                                <input class="io" name="rewardWeight" th:value="${winning.rewardWeight}" required/>
+                            </td>
+                            <td>
+                                <input class="io" name="weight" th:value="${winning.weight}" required/>
+                            </td>
+                            <td>
+                                <button type="button" class="row-del" th:value="'row-del-' + ${stat.count}" th:style="${stat.count == 1 ? 'visibility:hidden' : ''}">X</button>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+
+                    <table class="tbl" id="tbl-aging" th:if="${std eq 'aging'}">
+                        <thead>
+                        <tr>
+                            <th>구간 최소값</th>
+                            <th>{적용 상수}</th>
+                            <th></th>
+                        </tr>
+                        </thead>
+
+                        <tbody>
+                        <tr th:each="aging, stat : ${stdList}">
+                            <td>
+                                <input class="io" name="grade" th:value="${aging.grade}" required th:readonly="${stat.count == 1}"/>일
+                            </td>
+                            <td>
+                                <input class="io" name="weight" th:value="${aging.weight}" required/>
+                            </td>
+                            <td>
+                                <button type="button" class="row-del" th:value="'row-del-' + ${stat.count}" th:style="${stat.count == 1 ? 'visibility:hidden' : ''}">X</button>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+
+                    <button th:value="${std}" type="button" class="row-add"> 추가</button>
+                </fieldset>
+            </div>
+
+            <div class='regInfo'>
+                <p th:text="'최근 수정자: ' + ${stdList.get(0).regUserId}"></p>
+                <p th:text="'최근 수정시간: ' + ${#temporals.format(stdList.get(0).regDttm, 'yyyy-MM-dd HH:mm:ss')}"></p>
+            </div>
+
+            <button id="form-apply" th:value="${std}">적용하기</button>
+
+        </form>
+
+    </div>
+
+</section>
+</body>
+</html>

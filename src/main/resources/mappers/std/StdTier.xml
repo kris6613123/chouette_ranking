@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chouette.rankingWeb.dao.std.StdTierDAO">
+
+    <sql id="select">
+        SELECT
+            *
+        FROM
+            STD_TIER
+
+    </sql>
+
+    <insert id="add">
+        INSERT INTO
+            STD_TIER ( TYPE, TIER, WEIGHT, FILE, REG_USER, REG_DTTM )
+        VALUES
+            ( #{type}, #{tier}, #{weight}, #{file}, #{regUser}, now() )
+    </insert>
+
+    <delete id="delAll">
+        DELETE
+        FROM
+            STD_TIER
+    </delete>
+
+    <select id="getTypeSItem"  resultType="com.chouette.rankingWeb.vo.std.StdTierVO">
+        SELECT
+            TYPE,
+            TIER,
+            WEIGHT,
+            FILE,
+            REG_USER,
+            ( SELECT ID FROM USER WHERE USER.USER = STD_TIER.REG_USER) AS regUserId,
+            REG_DTTM
+        FROM
+            STD_TIER
+        WHERE
+            TYPE = 'S'
+        limit 1
+    </select>
+
+    <select id="getItemByCustomer"  resultType="com.chouette.rankingWeb.vo.std.StdTierVO">
+        SELECT
+            TIER,
+            ( SELECT FILE FROM FILE WHERE FILE.FILE = STD_TIER.FILE ) AS file
+        FROM
+            STD_TIER
+        WHERE
+            CASE
+                WHEN ( SELECT VCT.CPI FROM VW_CAL_TIER VCT WHERE VCT.CUSTOMER = #{customer} ) IS NULL
+                    THEN TYPE = 'S'
+                ELSE WEIGHT >= ( SELECT VCT.R / VCT.N FROM VW_CAL_TIER VCT WHERE VCT.CUSTOMER = #{customer} )
+                END
+        ORDER BY
+            WEIGHT ASC
+        LIMIT 1
+    </select>
+
+    <select id="getList"  resultType="com.chouette.rankingWeb.vo.std.StdTierVO">
+        <include refid="select"/>
+    </select>
+
+    <select id="getTypeRList"  resultType="com.chouette.rankingWeb.vo.std.StdTierVO">
+        <include refid="select"/>
+        WHERE
+            TYPE = 'R'
+        ORDER BY
+            WEIGHT DESC
+    </select>
+
+
+</mapper>
+

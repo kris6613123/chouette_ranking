@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chouette.rankingWeb.dao.file.BranchFileDAO">
+
+    <sql id="select">
+        SELECT
+            *
+        FROM
+            BRANCH_FILE
+    </sql>
+
+    <insert id="add" parameterType="com.chouette.rankingWeb.vo.file.BranchFileVO" useGeneratedKeys="true" keyProperty="branch">
+        INSERT INTO
+            BRANCH_FILE ( FILE, BRANCH, TYPE )
+        VALUES
+            ( #{file}, #{branch}, #{type} )
+    </insert>
+
+    <delete id="del" parameterType="com.chouette.rankingWeb.vo.file.BranchFileVO">
+        DELETE
+        FROM
+            BRANCH_FILE
+        WHERE
+            BRANCH = #{branch} and TYPE = #{type}
+    </delete>
+
+    <select id="getItem" parameterType="com.chouette.rankingWeb.vo.file.BranchFileVO" resultType="com.chouette.rankingWeb.vo.file.BranchFileVO">
+        <include refid="select"/>
+        WHERE
+            BRANCH = #{branch} and TYPE = #{type}
+    </select>
+
+</mapper>
+

@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>chpi</title>
+
+    <link rel="manifest" href="/manifest.json">
+    <link rel="shortcut icon" type="image/x-icon" href="/img/title.jpg">
+    <link rel="import" href="../common/header.html">
+    <link rel='stylesheet' href='/css/common/header.css' type='text/css'/>
+    <link rel='stylesheet' href='/css/news.css' type='text/css'/>
+    <link rel='stylesheet' href='/css/common/common.css' type='text/css'/>
+    <script src="/js/common/common.js"></script>
+    <script type="module">
+        import 'https://cdn.jsdelivr.net/npm/@pwabuilder/pwaupdate';
+        const el = document.createElement('pwa-update');
+        document.body.appendChild(el);
+    </script>
+    <script>
+
+        window.onload = function () {
+            let oEditors = [];
+            nhn.husky.EZCreator.createInIFrame({
+                oAppRef: oEditors,
+                elPlaceHolder: "content",
+                sSkinURI: "/smarteditor2/SmartEditor2Skin.html",
+                fCreator: "createSEditor2",
+                htParams: {
+                    // bUseVerticalResizer: false,           // 입력창 크키 조절바 사용여부 (true: 사용, false: 미사용)
+                    // bUseModeChanger: false            // 모드 탭(Editor | HTML | TEXT) 사용여부 (true: 사용, false: 미사용)
+                    // bUseVerticalResizer: true,
+                    bSkipXssFilter : true,
+                },
+                fOnAppLoad : function() {
+                    //기존 내용 가져오기
+                    oEditors.getById["content"].exec("PASTE_HTML", [document.getElementById('existingCon').value]);
+                }
+            });
+
+            let form = document.getElementById('f-news');
+            form.addEventListener('submit', function (evt) {
+                oEditors.getById["content"].exec("UPDATE_CONTENTS_FIELD", []);
+                defaultApply( evt, document.getElementById( 'f-news' ), "/news/list" );
+            });
+        }
+
+    </script>
+    <script type="text/javascript" src="/smarteditor2/js/HuskyEZCreator.js" charset="utf-8"></script>
+
+</head>
+<body>
+
+<header th:replace='common/header.html :: fragment-header'></header>
+
+<section class="wrapper long-box">
+    <div class="news-form">
+
+        <form action="/news/mod/p" class='io-form' id='f-news' method='post'>
+
+            <input type="hidden" name="news" th:value="${news.news}"/>
+            <input type="hidden" id="existingCon" th:value="${news.content}"/>
+
+            <input class="io news-subject" name="subject" id="subject" placeholder="제목을 입력해주세요" th:value="${news.subject}" required/>
+
+            <textarea name="content" id="content" rows="10" cols="100" placeholder="내용을 입력해주세요"></textarea>
+
+            <button id="form-apply" type="submit">등록하기</button>
+
+        </form>
+
+    </div>
+
+</section>
+
+</body>
+
+</html>

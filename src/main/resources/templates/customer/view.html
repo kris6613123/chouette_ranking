@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>chpi</title>
+
+    <link rel="manifest" href="/manifest.json">
+    <link rel="shortcut icon" type="image/x-icon" href="/img/title.jpg">
+    <link rel="import" href="../common/header.html">
+    <link rel='stylesheet' href='/css/common/header.css' type='text/css'/>
+    <link rel='stylesheet' href='/css/profile.css' type='text/css'/>
+    <link rel='stylesheet' href='/css/common/common.css' type='text/css'/>
+    <link rel='stylesheet' href='/css/common/table.css' type='text/css'/>
+
+    <script src="/js/common/common.js"></script>
+    <script src="/js/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+    <script type="module">
+        import 'https://cdn.jsdelivr.net/npm/@pwabuilder/pwaupdate';
+        const el = document.createElement('pwa-update');
+        document.body.appendChild(el);
+    </script>
+    <script type='text/javascript'>
+        window.onload = function(){
+
+            let search = document.querySelector('.img-game-search');
+            search.addEventListener( 'click', function () {
+                searching( document.querySelector('.game-search') );
+            });
+
+            let searchCustomer = document.querySelector('.img-search');
+            searchCustomer.addEventListener( 'click', function () {
+                searchingByCustomUrl( "/search", document.querySelector('.io-search') );
+            });
+
+            let inputList = document.querySelectorAll('.search');
+            inputList.forEach( function (input) {
+                input.addEventListener('keyup', function (evt) {
+                    if(evt.keyCode === 13) {
+                        evt.target.nextElementSibling.querySelector('img').click();
+                    }
+                });
+            });
+
+
+            // 페이지가 로드될 때 특정 위치로 스크롤 이동
+            let searchParams = new URLSearchParams( location.search );
+            if ( searchParams.get('game') !== null ) {
+                document.getElementById('game').scrollIntoView();
+            }
+
+            let btn_month = document.querySelectorAll('.btn-month');
+            btn_month.forEach(function (btn) {
+                btn.addEventListener('click', function (evt) {
+                    updateChartByMonth( Chart.getChart('line-chart'), resultList, evt.target.value );
+                });
+            });
+
+            let labels = getLabels( 1 );   ///기본 1개월로 셋팅
+            let resultList = [];
+
+            let xhr = new XMLHttpRequest();
+            xhr.onreadystatechange = function() {
+                if ( xhr.readyState === XMLHttpRequest.DONE ) {
+                    if ( xhr.status === 200 ) {
+                        resultList = JSON.parse( xhr.response );
+                        let dataList = getDataList( labels, resultList );
+                        makeLineChart( document.getElementById("line-chart"), labels, dataList );
+                    }
+                    else if( xhr.status === 400 ) {
+                        alert( xhr.responseText );
+                    }
+                }
+            };
+            xhr.open('POST', '/customer/' + document.getElementById('io-customer').value + '/chart', true);
+            xhr.send();
+
+        }
+
+    </script>
+</head>
+<body>
+
+<header th:replace='common/header.html :: fragment-header'></header>
+
+<section class="wrapper long-long-box">
+
+    <div class="searcher">
+        <input class='io-search search' id="customer" type='search' name='customer' placeholder='닉네임을 검색해주세요.'/>
+        <div> <img class="img-search" src="/img/search.png" alt=""> </div>
+    </div>
+
+    <div class="profile">
+        <input type="hidden" id="io-customer" th:value="${customer.customer}">
+
+        <h2 class="tbl-h2">&nbsp&nbsp
+            PROFILE</h2>
+
+        <div class="profile-top">
+
+            <div class="top-1">
+                <div>
+                    <img class="img-tier" th:src="${tier.file != null} ? '/images/' + ${tier.file} : ' '" alt=" " onerror="this.style.display='none'">
+                    <img class="img-customer" th:src="${customer.file != null} ? '/images/' + ${customer.file} : '/img/baseCustomer.jpg'" alt=" ">
+                </div>
+            </div>
+
+            <div class="top-2">
+                <div class="right-1">
+                    <div class="tbl-scroll">
+                        <table>
+                            <thead>
+                            <tr class="tbl-title">
+                                <th></th>
+                                <th class="col-small">SHOP</th>
+                                <th class="col-small">PLAYER</th>
+                                <th class="col-small">TIER</th>
+                                <th class="col-small">ID</th>
+                                <th class="col-small" th:if="${customer.itmYn == 'Y'}">ITM</th>
+
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr>
+                                <td> <img th:if="${customer.branchLogo != null}" class="image-fit" th:src="'/images/' + ${customer.branchLogo}" alt=" "> </td>
+                                <td th:text="${customer.branchName}"></td>
+                                <td th:text="${customer.nickname}"></td>
+                                <td th:text="${tier.tier}"></td>
+                                <td th:text="${customer.customer}"></td>
+                                <td th:if="${customer.itmYn == 'Y'}" th:text="${ranking.itm}"></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="right-2">
+                    <table class="rank-1">
+                        <tbody>
+                        <tr class="tbl-title">
+                            <th class="col-dark" rowspan="2">TOTAL</th>
+                            <th class="col-small">RANK</th>
+                            <th class="col-small">SCORE</th>
+                        </tr>
+                        <tr>
+                            <td class="row-rank" th:text="${ranking.totalRank}"></td>
+                            <td class="row-yellow" th:text="${ranking.totalCpi}"></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                    <table class="rank-2">
+                        <tbody>
+                        <tr class="tbl-title">
+                            <th class="col-dark" rowspan="2">OFF <br> LINE</th>
+                            <th class="col-small">RANK</th>
+                            <th class="col-small">SCORE</th>
+                        </tr>
+                        <tr>
+                            <td class="row-rank" th:text="${ranking.offlineRank}"></td>
+                            <td class="row-yellow" th:text="${ranking.offlineCpi}"></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                    <table class="rank-3">
+                        <tbody>
+                        <tr class="tbl-title">
+                            <th class="col-dark" rowspan="2">ON <br> LINE</th>
+                            <th class="col-small">RANK</th>
+                            <th class="col-small">SCORE</th>
+                        </tr>
+                        <tr>
+                            <td class="row-rank" th:text="${ranking.onlineRank}"></td>
+                            <td class="row-yellow" th:text="${ranking.onlineCpi}"></td>
+                        </tr>
+                        </tbody>
+                    </table>
+
+                </div>
+
+                <div class="right-3">
+                    <div class="btns-chart">
+                        <button class="btn-month" id="chart-month-1" value="1">1개월</button>
+                        <button class="btn-month" id="chart-month-3" value="3">3개월</button>
+                        <button class="btn-month" id="chart-month-6" value="6">6개월</button>
+                    </div>
+
+                    <canvas id="line-chart"></canvas>
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="game-searcher">
+            <input class='game-search search' id="game" type='search' name='game' placeholder='게임명을 검색해주세요.'/>
+            <div><img class="img-game-search" src="/img/search.png" alt=""></div>
+        </div>
+
+        <div class="profile-bottom">
+            <h3>RANKING HISTORY</h3>
+            <div class="tbl-scroll">
+                <table class="bottom-1">
+                    <thead>
+                    <tr class="tbl-title">
+                        <th>DATE</th>
+                        <th>SCORE</th>
+                        <th>GAME</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each='game, stat : ${gameList}' th:style="${stat.count % 2 == 0 ? 'background-color: rgba(114, 112, 112, 0.3)' : ''}">
+                        <td th:text="${game.gameDttm}"></td>
+                        <td th:text="${game.cpi}"></td>
+                        <td th:text="${game.name}"></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</section>
+
+</body>
+</html>

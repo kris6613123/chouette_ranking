@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>chpi</title>
+
+    <link rel="manifest" href="/manifest.json">
+    <link rel="shortcut icon" type="image/x-icon" href="/img/title.jpg">
+    <link rel="import" href="common/header.html">
+    <link rel='stylesheet' href='/css/common/header.css' type='text/css'/>
+    <link rel='stylesheet' href='/css/common/table.css' type='text/css'/>
+    <link rel='stylesheet' href='/css/common/common.css' type='text/css'/>
+    <script src="/js/common/common.js"></script>
+    <script type="module">
+        import 'https://cdn.jsdelivr.net/npm/@pwabuilder/pwaupdate';
+        const el = document.createElement('pwa-update');
+        document.body.appendChild(el);
+    </script>
+
+    <script type='text/javascript'>
+        window.onload = function(){
+            setNumWithComma();
+            let searchCustomer = document.querySelector('.img-search');
+            searchCustomer.addEventListener( 'click', function () {
+                searchingByCustomUrl( "/search", document.querySelector('.io-search') );
+            });
+
+            let input = document.querySelector('.search');
+            input.addEventListener('keyup', function (evt) {
+                if(evt.keyCode === 13) {
+                    evt.target.nextElementSibling.querySelector('img').click();
+                }
+            });
+
+            let tableList = document.querySelectorAll('.colorTable');
+            tableList.forEach( function ( table ) {
+                setColoring( table.nextElementSibling, table.value, 0.9 );
+            });
+
+        }
+    </script>
+</head>
+<body>
+
+<header th:replace='common/header.html :: fragment-header'></header>
+
+<section class="wrapper long-long-box">
+
+    <div class="searcher">
+        <input class='io-search search' id="customer" type='search' name='customer' placeholder='플레이어를 입력해주세요.'/>
+        <div> <img class="img-search" src="/img/search.png" alt=""> </div>
+    </div>
+
+    <div class="div-flex">
+
+        <input type="hidden" id="branch-length" th:value="${branchList.size()}">
+
+        <div class="flex1-item ranking" id="ranking-total">
+            <h2 class="tbl-h2">&nbsp&nbsp TOTAL</h2>
+            <div class="tbl-scroll">
+                <table class="tbl">
+                    <thead>
+                    <tr class="tbl-title">
+                        <th>RANK</th>
+                        <th>SHOP</th>
+                        <th>PLAYER</th>
+                        <th>TIER</th>
+                        <th>TOTAL</th>
+                        <th>OFF LINE</th>
+                        <th>ON LINE</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each='total, stat : ${totalList}' th:style="${total.totalRank == 1 ? 'border: 1px solid #D6A867' : ''}">
+                            <td th:if="${total.totalRank == 1}"><img class="image-fit" src="/img/prize.png"></td>
+                            <td th:if="${total.totalRank > 1}" class="row-rank" th:style="${total.totalRank<= 3 ? 'color: #D6A867' : ''}" th:text='${total.totalRank}'></td>
+                            <td th:text='${total.branchName}'></td>
+                            <td class="td-all-break"><a class="row-yellow row-search" th:text="${total.nickname}" th:href="'/customer/' + ${total.customer} + '/view'"></a></td>
+                            <td class="td-early-word-break" th:text='${total.tier}'></td>
+                            <td class="row-yellow big-number td-word-break" th:text="${total.totalCpi}  + ' pts'"></td>
+                            <td class="big-number td-word-break" th:text="${total.offlineCpi} != null ? ${total.offlineCpi}  + ' pts' : ''"></td>
+                            <td class="big-number td-word-break" th:text="${total.onlineCpi} != null ? ${total.onlineCpi}  + ' pts' : ''"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="flex2-item">
+            <h2 class="tbl-h2">&nbsp&nbsp OFF LINE</h2>
+            <div class="tbl-scroll">
+                <table class="tbl">
+                    <thead>
+                    <tr>
+                        <th>RANK</th>
+                        <th>SHOP</th>
+                        <th>PLAYER</th>
+                        <th>TIER</th>
+                        <th>SCORE</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each='offline, stat : ${offlineList}' th:style="${offline.offlineRank == 1 ? 'border: 1px solid #D6A867' : ''}">
+                        <td th:if="${offline.offlineRank == 1}"><img class="image-fit" src="/img/prize.png"></td>
+                        <td th:if="${offline.offlineRank > 1}" class="row-rank" th:style="${offline.offlineRank <= 3 ? 'color: #D6A867' : ''}" th:text='${offline.offlineRank}'></td>
+                        <td th:text='${offline.branchName}'></td>
+                        <td><a class="row-yellow row-search" th:text="${offline.nickname}" th:href="'/customer/' + ${offline.customer} + '/view'"></a></td>
+                        <td class="td-early-word-break" th:text='${offline.tier}'></td>
+                        <td class="row-yellow big-number td-word-break" th:text="${offline.offlineCpi} != null ? ${offline.offlineCpi}  + ' pts' : ''"></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="flex2-item ranking">
+            <h2 class="tbl-h2">&nbsp&nbsp ON LINE</h2>
+            <div class="tbl-scroll">
+                <table class="tbl">
+                    <thead>
+                    <tr>
+                        <th>RANK</th>
+                        <th>SHOP</th>
+                        <th>PLAYER</th>
+                        <th>TIER</th>
+                        <th>SCORE</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each='online, stat : ${onlineList}' th:style="${online.onlineRank == 1 ? 'border: 1px solid #D6A867' : ''}">
+                            <td th:if="${online.onlineRank == 1}"><img class="image-fit" src="/img/prize.png"></td>
+                            <td th:if="${online.onlineRank > 1}" class="row-rank" th:style="${online.onlineRank <= 3 ? 'color: #D6A867' : ''}" th:text='${online.onlineRank}'></td>
+                            <td th:text='${online.branchName}'></td>
+                            <td><a class="row-yellow row-search" th:text="${online.nickname}" th:href="'/customer/' + ${online.customer} + '/view'"></a></td>
+                            <td class="td-early-word-break" th:text='${online.tier}'></td>
+                            <td class="row-yellow big-number td-word-break" th:text="${online.onlineCpi}  + ' pts'"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+         <div class="div-title">
+             <div>
+                 <div>지점별 랭킹</div>
+             </div>
+         </div>
+
+        <div class="flex2-item" th:each="branch : ${branchList}">
+
+            <input type="hidden" class="colorTable" th:value="${branch.colorTable}">
+
+            <h2 class="tbl-h2" th:text="'&nbsp&nbsp' + ${branch.name}"></h2>
+            <div class="tbl-scroll">
+                <table class="tbl">
+                    <thead>
+                    <tr>
+                        <th>RANK</th>
+                        <th>SHOP</th>
+                        <th>PLAYER</th>
+                        <th>SCORE</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each='ranking, stat : ${totalListByBranch[ branch.branch ]}' th:style="${ranking.totalRank == 1 ? 'border: 1px solid #D6A867' : ''}">
+                        <td th:if="${ranking.totalRank == 1}"><img class="image-fit" src="/img/prize.png"></td>
+                        <td th:if="${ranking.totalRank > 1}" class="row-rank" th:style="${ranking.totalRank <= 3 ? 'color: #D6A867' : ''}" th:text='${ranking.totalRank}'></td>
+                        <td th:text='${ranking.branchName}'></td>
+                        <td class="td-all-break"><a class="row-yellow row-search" th:text="${ranking.nickname}" th:href="'/customer/' + ${ranking.customer} + '/view'"></a></td>
+                        <td class="row-yellow big-number td-word-break" th:text="${ranking.totalCpi}  + ' pts'"></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+
+</section>
+
+</body>
+</html>

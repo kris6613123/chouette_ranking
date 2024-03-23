@@ -1,0 +1,69 @@
+<header th:fragment='fragment-header'>
+    <div id="header">
+        <div>
+            <div id="header-left">
+                <a href="/">
+                    <img class="image-fit" src="/img/h_logo.png" alt=" ">
+                </a>
+            </div>
+
+            <nav id="header-right">
+                <ul>
+                    <li>
+                        <a href="/ranking">
+                            <img class="header-img" src="/img/ranking.png" alt=" ">
+                            <p class="menu">RANKING</p>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="/news">
+                            <img class="header-img" src="/img/news.png" alt=" ">
+                            <p class="menu">NEWS</p>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="/search">
+                            <img class="header-img" src="/img/search.png" alt=" ">
+                            <p class="menu">SEARCH</p>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="/location">
+                            <img class="header-img" src="/img/location.png" alt=" ">
+                            <p class="menu">LOCATION</p>
+                        </a>
+                    </li>
+
+                    <li th:if="${isUser eq true}" class="user-li">
+                        <a>
+                            <img class="header-img" src="/img/admin.png" alt=" ">
+                            <p class="menu">ADMIN</p>
+                        </a>
+
+                        <ul class="sub-ul">
+                            <li th:if="${isRoot eq true}"><a href="/std/mod">설정값 <br> 관리</a></li>
+                            <li><a href="/customer/list">손님 <br> 관리</a></li>
+                            <li th:if="${isRoot eq true}"><a href="/game/list">게임 <br> 관리</a></li>
+                            <li th:if="${isRoot eq true}"><a href="/user/list">계정 <br> 관리</a></li>
+                            <li th:if="${isRoot eq true}"><a href="/branch/list">매장 <br> 관리</a></li>
+                            <li th:if="${isRoot eq true}"><a href="/news/list">게시글 <br> 관리</a></li>
+                            <li><a href="/user/logout">로그아웃</a></li>
+                        </ul>
+                    </li>
+
+                    <!--
+                    <li th:if="${isUser eq false}">
+                        <a href="/user/login">
+                            <img class="header-img" src="/img/admin.png" alt="Login">
+                            <p class="menu">LOGIN</p>
+                        </a>
+                    </li>
+                    -->
+                </ul>
+            </nav>
+        </div>
+    </div>
+</header>

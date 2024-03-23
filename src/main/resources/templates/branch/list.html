@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>chpi</title>
+
+    <link rel="manifest" href="/manifest.json">
+    <link rel="shortcut icon" type="image/x-icon" href="/img/title.jpg">
+    <link rel="import" href="../common/header.html">
+    <link rel='stylesheet' href='/css/common/header.css' type='text/css'/>
+    <link rel='stylesheet' href='/css/common/table.css' type='text/css'/>
+    <link rel='stylesheet' href='/css/common/common.css' type='text/css'/>
+
+    <script src="/js/common/common.js"></script>
+    <script type="module">
+        import 'https://cdn.jsdelivr.net/npm/@pwabuilder/pwaupdate';
+        const el = document.createElement('pwa-update');
+        document.body.appendChild(el);
+    </script>
+    <script>
+        window.onload = function () {
+            let btn_del_list = document.querySelectorAll('.btn-del');
+            btn_del_list.forEach(function (btn) {
+                btn.addEventListener('click', function (evt) {
+                    delItem(evt, "branch");
+                })
+            })
+        }
+    </script>
+</head>
+<body>
+
+<header th:replace='common/header.html :: fragment-header'></header>
+
+<section class="wrapper long-box">
+
+    <div class="btn-mod">
+        <a href="/branch/mod">등록하기</a>
+    </div>
+
+    <div class="branch-list">
+        <h2 class="tbl-h2">&nbsp&nbsp 매장 LIST</h2>
+        <div class="tbl-scroll">
+            <table class="tbl tbl-branch">
+                <thead>
+                <tr class="tbl-title">
+                    <th>매장코드</th>
+                    <th>매장</th>
+<!--                    <th>위치</th>-->
+<!--                    <th>인스타그램</th>-->
+<!--                    <th>전화번호</th>-->
+                    <th>LOCATION 컬러</th>
+                    <th>TABLE 컬러</th>
+                    <th>온/오프</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="branch : ${branchList}">
+                    <td th:text="${branch.branch}"></td>
+                    <td th:if="${branch.delYn == 'N'}"><a class="row-yellow row-search" th:text="${branch.name}" th:href="'/branch/' + ${branch.branch} + '/mod'"></a></td>
+<!--                    <td th:text="${branch.location}"></td>-->
+<!--                    <td th:text="${branch.instagram}"></td>-->
+<!--                    <td th:text="${branch.tel}"></td>-->
+                    <td th:text="${branch.color}"></td>
+                    <td th:text="${branch.colorTable}"></td>
+                    <td th:text="${branch.onoff}"></td>
+                    <td th:if="${branch.delYn == 'N'}"><button class="btn-del" th:value="${branch.branch}">삭제</button></td>
+                </tr>
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</section>
+
+</body>
+</html>

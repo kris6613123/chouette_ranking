@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chouette.rankingWeb.dao.GameDAO">
+
+    <sql id="select">
+        select
+            GAME,
+            NAME,
+            BUYIN,
+            TOTAL_BUYIN,
+            REWARD,
+            REWARD_WEIGHT,
+            ONOFF,
+            CUSTOMER,
+            GAME_DTTM,
+            REG_USER,
+            ( SELECT ID FROM USER WHERE USER.USER = GAME.REG_USER ) AS regUserId,
+            REG_DTTM,
+            SCORE,
+            CPI,
+            STATE
+        from
+            GAME
+    </sql>
+
+    <insert id="add" parameterType="com.chouette.rankingWeb.vo.GameVO">
+        insert into
+            GAME ( NAME, BUYIN, TOTAL_BUYIN, REWARD, REWARD_WEIGHT, ONOFF, CUSTOMER, GAME_DTTM, REG_USER, REG_DTTM, STATE )
+        values
+            ( #{name}, #{buyin}, #{totalBuyin}, #{reward}, #{rewardWeight}, #{onoff}, #{customer}, #{gameDttm}, #{regUser}, now(), #{state} )
+    </insert>
+
+    <update id="mod" parameterType="com.chouette.rankingWeb.vo.GameVO">
+        UPDATE
+            GAME
+        SET
+            NAME = #{name}, BUYIN = #{buyin}, TOTAL_BUYIN = #{totalBuyin}, REWARD = #{reward}, REWARD_WEIGHT = #{rewardWeight}, CUSTOMER = #{customer}, GAME_DTTM = #{gameDttm}, REG_USER = #{regUser}, REG_DTTM = now(), STATE = #{state}
+        WHERE
+            GAME = #{game}
+    </update>
+
+    <update id="dailyMod" parameterType="com.chouette.rankingWeb.vo.GameVO">
+        UPDATE
+            GAME
+        SET
+           SCORE = #{score}, CPI = ROUND( #{cpi}, 2 ), STATE = #{state}
+        WHERE
+            GAME = #{game}
+    </update>
+
+    <update id="updateStateToReady">
+        UPDATE
+            GAME
+        SET
+            STATE = 'READY'
+        WHERE
+            GAME_DTTM >= #{applyDttm}
+    </update>
+
+    <delete id="del" parameterType="com.chouette.rankingWeb.vo.GameVO">
+        DELETE
+        FROM
+            GAME
+        WHERE
+            GAME = #{game}
+    </delete>
+
+    <delete id="delByCustomer" parameterType="int">
+        DELETE
+        FROM
+            GAME
+        WHERE
+            CUSTOMER = #{customer}
+    </delete>
+
+    <select id="getItem" resultType="com.chouette.rankingWeb.vo.GameVO">
+        SELECT
+            *
+        FROM
+            GAME
+        WHERE
+            GAME = #{game}
+    </select>
+
+    <select id="getCount" resultType="int">
+        SELECT
+            COUNT(*)
+        FROM
+            GAME
+        <where>
+            <if test="keyword != null">
+                AND NAME LIKE CONCAT('%', #{keyword}, '%')
+            </if>
+            <if test="state != null and state != 'ALL'">
+                AND STATE = #{state}
+            </if>
+            <if test="start != null and end != null">
+                AND GAME_DTTM BETWEEN #{start} AND #{end}
+            </if>
+        </where>
+    </select>
+
+    <select id="getList" resultType="com.chouette.rankingWeb.vo.GameVO">
+        <include refid="select"/>
+        ORDER BY
+            REG_DTTM DESC
+    </select>
+
+    <select id="getPagingList" resultType="com.chouette.rankingWeb.vo.GameVO">
+        <include refid="select"/>
+        <where>
+            <if test="keyword != null">
+                AND NAME LIKE CONCAT('%', #{keyword}, '%')
+            </if>
+            <if test="state != null and state != 'ALL'">
+                AND STATE = #{state}
+            </if>
+            <if test="start != null and end != null">
+                AND GAME_DTTM BETWEEN #{start} AND #{end}
+            </if>
+        </where>
+        ORDER BY
+            REG_DTTM DESC
+        LIMIT #{pagenum}, #{contentnum}
+    </select>
+
+    <select id="getListByCustomer" parameterType="com.chouette.rankingWeb.vo.GameVO" resultType="com.chouette.rankingWeb.vo.GameVO">
+        <include refid="select"/>
+        WHERE
+            CUSTOMER = #{customer} AND ( STATE = 'SUCCESS' OR CPI IS NOT NULL )
+        ORDER BY
+            GAME_DTTM DESC
+    </select>
+
+    <select id="getSearchListByCustomer" parameterType="com.chouette.rankingWeb.vo.GameVO" resultType="com.chouette.rankingWeb.vo.GameVO">
+        <include refid="select"/>
+        WHERE
+            CUSTOMER = #{customer} AND ( STATE = 'SUCCESS' OR CPI IS NOT NULL )
+        <if test="keyword != null">
+            AND NAME LIKE CONCAT('%', #{keyword}, '%')
+        </if>
+        ORDER BY
+            GAME_DTTM DESC
+    </select>
+
+</mapper>
+

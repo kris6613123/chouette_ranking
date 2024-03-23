@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>chpi</title>
+
+    <link rel="manifest" href="/manifest.json">
+    <link rel="shortcut icon" type="image/x-icon" href="/img/title.jpg">
+    <link rel="import" href="../common/header.html">
+    <link rel='stylesheet' href='/css/common/header.css' type='text/css'/>
+    <link rel='stylesheet' href='/css/common/form.css' type='text/css'/>
+    <link rel='stylesheet' href='/css/common/common.css' type='text/css'/>
+
+    <script src="/js/common/common.js"></script>
+    <script type="module">
+        import 'https://cdn.jsdelivr.net/npm/@pwabuilder/pwaupdate';
+        const el = document.createElement('pwa-update');
+        document.body.appendChild(el);
+    </script>
+    <script>
+        window.onload = function () {
+
+            let form = document.querySelector('#f-branch');
+            form.addEventListener( 'submit', apply );
+
+            let btn_file = document.querySelectorAll('.file-add');
+            btn_file.forEach(function ( btn ) {
+                btn.addEventListener( 'change', previewImg );
+            });
+
+            let btn_base = document.querySelectorAll('.use-nothing');
+            btn_base.forEach(function ( btn ) {
+                btn.addEventListener('click', function() {
+                    baseImg( btn.previousElementSibling.querySelector('.file-add'), "" );
+                });
+            });
+
+        }
+        function apply(evt) {
+
+            evt.preventDefault();
+            let data = new FormData( document.getElementById( 'f-branch' ) );
+            let xhr = new XMLHttpRequest();
+
+            xhr.onreadystatechange = function() {
+                if ( xhr.readyState === XMLHttpRequest.DONE ) {
+                    if ( xhr.status === 200 ) {
+                        alert( xhr.responseText );
+                        location.reload();
+                    }
+                    else if( xhr.status === 400 ) {
+                        alert( xhr.responseText );
+                    }
+                }
+            };
+            xhr.open('POST', this.action, true);
+
+            let obj = {};
+            for (let [ key, value ] of data.entries()) {
+                if(key === 'tel') {
+                    obj[key] = value.replace(/-/g, "");
+                    continue;
+                }
+                if(key === 'formFile' || key === 'logo') {
+                    continue;
+                }
+                obj[key] = value;
+            }
+
+            let formData = new FormData();
+            let files = document.querySelectorAll('.file-add');
+            files.forEach(function ( file ) {
+                if(!!file.files[0]) {
+                    formData.append( file.id, file.files[0] );
+                }
+            });
+            formData.append( 'vo', new Blob( [ JSON.stringify( obj ) ], { type: 'application/json' } ) );
+            xhr.send(formData);
+
+        }
+
+    </script>
+</head>
+<body>
+<header th:replace='common/header.html :: fragment-header'></header>
+
+<section class="wrapper box">
+    <div class="container">
+        <h2>매장 등록</h2>
+        <form id="f-branch" method="post" action="/branch/mod/p">
+            <input hidden="hidden" name="branch" th:value="${branch.branch}">
+
+            <div class="form-group">
+                <label for="name">
+                    <input type="text" id="name" name="name" placeholder="*이름" th:value="${branch.name}" required/>
+                </label>
+            </div>
+
+            <div class="form-group">
+                <label for="location">
+                    <input type="text" id="location" name="location" placeholder="위치정보" th:value="${branch.location}"/>
+                </label>
+            </div>
+
+            <div class="form-group">
+                <label for="kakao">
+                    <input type="text" id="kakao" name="kakao" placeholder="오픈채팅방 링크" th:value="${branch.kakao}"/>
+                </label>
+            </div>
+
+            <div class="form-group">
+                <label for="instagram">
+                    <input type="text" id="instagram" name="instagram" placeholder="인스타그램" th:value="${branch.instagram}"/>
+                </label>
+            </div>
+
+            <div class="form-group">
+                <label for="tel">
+                    <input type="text" id="tel" name="tel" placeholder="전화번호( '-' 포함 )" th:value="${branch.tel}" />
+                </label>
+            </div>
+            <div class="form-group">
+                <fieldset>
+                    <legend>온/오프 선택</legend>
+                    <label for="on">
+                        <input type="radio" id="on" name="onoff" value="N" th:checked="${branch.onoff == 'N'}" />온라인
+                    </label>
+                    <label for="off">
+                        <input type="radio" id="off" name="onoff" value="F" th:checked="${branch.onoff == 'F' || branch.onoff eq null}" /> 오프라인
+                    </label>
+                </fieldset>
+            </div>
+
+            <br>
+
+            <div class="form-group">
+                <label for="color">
+                    LOCATION 색깔 :
+                    <input type="color" id="color" name="color" th:value="${branch.color} != null ? ${branch.color} : '#ffffff'" required/>
+                </label>
+            </div>
+
+            <div class="form-group">
+                <label for="colorTable">
+                    TABLE 색깔 :
+                    <input type="color" id="colorTable" name="colorTable" th:value="${branch.colorTable} != null ? ${branch.colorTable} : '#ffffff'" required/>
+                </label>
+            </div>
+
+            <br>
+
+            내부 이미지
+            <br>
+            <div class="form-group form-group-img">
+                <label for="formFile">
+                    <input hidden="hidden" id="preFile" name="file" th:value="${branch.file}">
+                    <input class="io file-add" accept="image/*" id="formFile" type="file" name="formFile" hidden="hidden"  />
+                    <img class="image-fit" th:src="${branch.file != null} ? '/images/' + ${branch.file} : ' '" alt=" " />
+                </label>
+                <button type="button" class="use-nothing btn-base" value="">사용 안함</button>
+            </div>
+
+            로고 이미지
+            <br>
+            <div class="form-group form-group-img">
+                <label for="formFile-logo">
+                    <input hidden="hidden" id="preFile-logo" name="fileLogo" th:value="${branch.fileLogo}">
+                    <input class="io file-add" accept="image/*" id="formFile-logo" type="file" name="formFile-logo" hidden="hidden" />
+                    <img class="image-fit" th:src="${branch.fileLogo != null} ? '/images/' + ${branch.fileLogo} : ' '" alt=" " />
+                </label>
+                <button type="button" class="use-nothing btn-base" value="-logo">사용 안함</button>
+            </div>
+
+            <div class="form-group">
+                <button type="submit" class="btn-add">매장 등록</button>
+            </div>
+
+        </form>
+    </div>
+</section>
+</body>
+</html>

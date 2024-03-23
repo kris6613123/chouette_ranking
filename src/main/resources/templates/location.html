@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>chpi</title>
+
+    <link rel="manifest" href="/manifest.json">
+    <link rel="shortcut icon" type="image/x-icon" href="/img/title.jpg">
+    <link rel="import" href="common/header.html">
+    <link rel='stylesheet' href='/css/common/header.css' type='text/css'/>
+    <link rel='stylesheet' href='/css/location.css' type='text/css'/>
+    <link rel='stylesheet' href='/css/common/common.css' type='text/css'/>
+    <script src="/js/common/common.js"></script>
+    <script type="module">
+        import 'https://cdn.jsdelivr.net/npm/@pwabuilder/pwaupdate';
+        const el = document.createElement('pwa-update');
+        document.body.appendChild(el);
+    </script>
+    <script type='text/javascript'>
+        window.onload = function(){
+            let locationList = document.querySelectorAll('.colorLocation');
+            locationList.forEach( function ( location ) {
+               setColoring( location.nextElementSibling.querySelector('.text-overlay'), location.value, 0.3 );
+            });
+        }
+    </script>
+
+</head>
+<body>
+
+<header th:replace='common/header.html :: fragment-header'></header>
+
+<section class="wrapper long-box">
+    <div class="container">
+        <div id="location-header" class="div-overlay">
+            <img src="/img/locationHeader.png" alt="">
+            <div class="text-overlay">LOCATION</div>
+        </div>
+
+        <div th:each="branch : ${branchList}" class="location-item">
+            <input type="hidden" class="colorLocation" th:value="${branch.color}">
+
+            <div class="item-img">
+                <div class="div-overlay">
+                    <img  th:src="@{'/images/' + ${branch.file}}" alt=" ">
+                    <div class="text-overlay" th:text="${branch.name}"></div>
+                </div>
+            </div>
+
+            <div class="item-explanation">
+                <div th:text="${branch.name}"></div>
+
+                <div th:text="${branch.location}"></div>
+
+                <div><a th:href="${branch.kakao}" th:text="${branch.kakao}"></a></div>
+
+                <div class="div-flex-row2">
+                    <img src="/img/instagram.png" alt=" ">
+                    <div th:text="${branch.instagram}"></div>
+                </div>
+
+                <div class="div-flex-row2">
+                    <img src="/img/call.png" alt=" ">
+                    <div th:text="${branch.tel}"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+</body>
+</html>

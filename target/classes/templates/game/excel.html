@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>chpi</title>
+
+    <link rel="manifest" href="/manifest.json">
+    <link rel="shortcut icon" type="image/x-icon" href="/img/title.jpg">
+    <link rel="import" href="../common/header.html">
+    <link rel='stylesheet' href='/css/common/header.css' type='text/css'/>
+    <link rel='stylesheet' href='/css/common/form.css' type='text/css'/>
+    <link rel='stylesheet' href='/css/common/common.css' type='text/css'/>
+    <script type="module">
+        import 'https://cdn.jsdelivr.net/npm/@pwabuilder/pwaupdate';
+        const el = document.createElement('pwa-update');
+        document.body.appendChild(el);
+    </script>
+    <script>
+        window.onload = function () {
+            let form = document.getElementById( 'f-game' );
+            form.addEventListener( 'submit', apply );
+        }
+
+        function apply(evt) {
+            evt.preventDefault();
+            let xhr = new XMLHttpRequest();
+
+            xhr.onreadystatechange = function() {
+                if ( xhr.readyState === XMLHttpRequest.DONE ) {
+                    if ( xhr.status === 200 ) {
+                        alert( xhr.responseText );
+                        location.href = "/game/list";
+                    }
+                    else if( xhr.status === 400 ) {
+                        alert( xhr.responseText );
+                    }
+                }
+            };
+
+            xhr.open('POST', this.action, true);
+            let formData = new FormData();
+            let file = document.querySelector('.file-add');
+            if(!!file.files[0]) {
+                formData.append( 'formFile', file.files[0] );
+            }
+            xhr.send(formData);
+        }
+
+    </script>
+</head>
+<body>
+<header th:replace='common/header.html :: fragment-header'></header>
+
+<section class="wrapper box">
+    <div class="container">
+
+        <h2>게임 등록</h2>
+
+        <form id="f-game" method="post" action="/game/mod/excel/p">
+
+            <div class="form-group">
+                <fieldset>
+                    <legend>게임 결과 엑셀</legend>
+                    <input class="file-add" type="file" name="file" accept=".xlsx" required>
+                </fieldset>
+            </div>
+
+            <br/>
+
+            <div class="form-group">
+                <button class="btn-add" type="submit">게임 등록</button>
+            </div>
+        </form>
+
+        <br>
+
+    </div>
+</section>
+
+</body>
+
+</html>

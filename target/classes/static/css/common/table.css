@@ -1,0 +1,223 @@
+/* flex css */
+.div-flex {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    flex-wrap: wrap;
+}
+
+.flex3-item {  /*  width와 gap의 퍼센트를 맞추면 화면 꽉차게 채워짐 */
+    width: 32%;
+    margin-bottom: 3em;
+}
+
+.flex2-item {  /*  width와 gap의 퍼센트를 맞추면 화면 꽉차게 채워짐 */
+    width: 48%;
+    margin-bottom: 3em;
+}
+
+.flex1-item {  /*  width와 gap의 퍼센트를 맞추면 화면 꽉차게 채워짐 */
+    width: 100%;
+    margin-bottom: 3em;
+}
+.flex-item {
+    margin-bottom: 3em;
+}
+/* flex css */
+
+
+/* table css */
+.tbl-h2 {
+    color: #404040;
+    font-size: 1.5em;
+    width: 100%;
+    border-radius: 1em 1em 0 0;
+    background-color: rgb(202, 166, 106, 1);
+    margin: 0;            /*h2가 원래 margin이 기본적으로 존재함*/
+    padding: 0.2em 0;
+}
+.tbl-scroll {
+    width: 100%;
+    overflow: auto;
+    white-space: nowrap;
+}
+.tbl{
+    text-align: center;
+    width: 100%;
+    background-color: rgba(46, 46, 46, 0.7);
+    border-collapse: collapse;
+    border-radius: 0 0 1em 1em;
+    color: #bebdbd;
+}
+.tbl-title {
+    background-color: #626060;
+}
+th{
+    padding: 0.3em 0.5em;
+    font-size: 1.1em;
+}
+#ranking-total > table > tr > th {
+    padding: 0;
+}
+td{
+    color: #A7A7A7;
+    padding: 1em 0.5em;
+    font-size: 1em;
+    white-space: nowrap;
+}
+.td-all-break {
+    white-space: normal;
+    word-break: break-all;
+}
+.td-early-word-break {
+    white-space: normal;
+    word-break: keep-all;
+}
+.row-yellow {
+    color: #D6A867;
+}
+.row-rank {
+    font-weight: bold;
+}
+.row-search {
+    text-decoration: none;
+}
+.row-search:hover {
+    color: #c5944f;
+}
+/* table css */
+
+
+
+/*수정 삭제 버튼*/
+.btn-del {
+    background: none;
+    color: #cccccc;
+}
+.btn-del:hover {
+    cursor: pointer;
+    color: #b2b1b1;
+}
+.btn-mod {
+    width: 100%;
+    text-align: right;
+    box-sizing: border-box;
+    padding: 1em;
+}
+/*.tbl-filter {*/
+/*    width: 100%;*/
+/*    text-align: center;*/
+/*    box-sizing: border-box;*/
+/*    margin-bottom: 0.3em;*/
+/*}*/
+/*.tbl-filter > div {*/
+/*    display: inline-block;*/
+/*    padding: 0.8em;*/
+/*}*/
+/*.tbl-filter > div:hover, .tbl-filter > input:hover {*/
+/*    cursor: pointer;*/
+/*}*/
+/*.tbl-filter > input {*/
+/*    background-color: rgba(236, 210, 168, 0.8);*/
+/*    padding: 0.3em;*/
+/*    border-radius: 0.4em;*/
+/*}*/
+.btn-mod > a{
+    text-decoration: none;
+    color: #404040;
+    background-color: rgba(231, 185, 125, 0.8);
+    margin-right: 1em;
+    padding: 0.5em;
+    border-radius: 0.4em;
+    font-size: 1em;
+}
+.btn-mod > a:hover {
+    background-color: rgba(231, 185, 125, 0.9);
+}
+/*수정 삭제 버튼*/
+
+/*pagination css*/
+.pagination-container {
+    height: 2.5em;
+    padding: 0.5rem 0.75rem;
+    margin-top: 2em;
+    background-color: rgba(100, 100, 100, 0.7);
+}
+.pagination {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    line-height: 2.5em;
+}
+.page-item {
+    list-style: none;
+}
+.page-link {
+    font-size: 1em;
+    border: none;
+    background: none;
+    color: #e5e1e1;
+}
+.page-link:hover {
+    cursor: pointer;
+    color: #A7A7A7;
+}
+.page-link:disabled {
+    cursor: default;
+}
+/*pagination css*/
+
+
+
+@media screen and (max-width: 1440px) {
+}
+
+@media screen and (max-width: 1023px) {
+    .flex3-item {  /*  width와 gap의 퍼센트를 맞추면 화면 꽉차게 채워짐 */
+        width: 100%;
+    }
+
+}
+
+@media screen and (max-width: 768px) {
+    .flex2-item {  /*  width와 gap의 퍼센트를 맞추면 화면 꽉차게 채워짐 */
+        width: 100%;
+    }
+    .tbl-h2 {
+        font-size: 1.2em;
+        padding: 0.1em 0;
+    }
+    td{
+        padding: 0.5em 0.5em;
+        font-size: 0.8em;
+    }
+    th{
+        font-size: 0.9em;
+    }
+    .row-rank {
+        font-size: 0.9em;
+    }
+    .btn-mod > a {
+        font-size: 0.8em;
+    }
+    .tbl-scroll::-webkit-scrollbar {
+        display: none;
+    }
+}
+@media screen and (max-width: 480px) {
+    .btn-mod > a {
+        font-size: 0.7em;
+    }
+}
+@media screen and (max-width: 420px) {
+    /*.td-word-break {*/
+    /*    white-space: normal;*/
+    /*    word-break: keep-all;*/
+    /*}*/
+}
+
+
+
+
+

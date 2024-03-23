@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="manifest" href="/manifest.json">
+    <link rel="import" href="../common/header.html">
+    <link rel='stylesheet' href='/css/common/header.css' type='text/css'/>
+    <link rel='stylesheet' href='/css/common/table.css' type='text/css'/>
+    <link rel='stylesheet' href='/css/common/common.css' type='text/css'/>
+
+    <script src="/js/common/common.js"></script>
+    <script type="module">
+        import 'https://cdn.jsdelivr.net/npm/@pwabuilder/pwaupdate';
+        const el = document.createElement('pwa-update');
+        document.body.appendChild(el);
+    </script>
+    <script>
+        window.onload = function () {
+            let btn_del_list = document.querySelectorAll('.btn-del');
+            btn_del_list.forEach(function (btn) {
+                btn.addEventListener('click', function (evt) {
+                    delItem(evt, "user");
+                })
+            })
+        }
+    </script>
+</head>
+<body>
+<header th:replace='common/header.html :: fragment-header'></header>
+
+<section class="wrapper long-box">
+
+    <div class="btn-mod" th:if="${isRoot eq true}">
+        <a href="/user/join">계정 등록</a>
+    </div>
+
+    <div class="user-list">
+
+        <h2 class="tbl-h2">&nbsp&nbsp 관리자 LIST</h2>
+
+        <table class="tbl tbl-user">
+            <thead>
+            <tr class="tbl-title">
+                <th>아이디</th>
+                <th>이름</th>
+                <th>권한</th>
+                <th>소속지점</th>
+                <th th:if="${isRoot eq true}"></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="user : ${userList}">
+                <td th:text="${user.id}"></td>
+                <td th:text="${user.name}"></td>
+                <td th:text="${user.auth}"></td>
+                <td th:text="${user.branchName}"></td>
+                <td th:if="${user.delYn eq 'N' and isRoot eq true}"><button class="btn-del" th:value="${user.user}">삭제</button></td>
+            </tr>
+
+            </tbody>
+        </table>
+    </div>
+
+</section>
+</body>
+</html>
