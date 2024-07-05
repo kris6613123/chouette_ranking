@@ -40,6 +40,8 @@ public class CtrlGame extends CtrlBase {
     private final UserService userService;
     private final GameFormService gameFormService;
     private final CustomerService customerService;
+    private final SchedulerService schedulerService;
+
 
     @RequestMapping( value = { "/list" } )
     public String list ( Model model,
@@ -208,6 +210,13 @@ public class CtrlGame extends CtrlBase {
     public ResponseEntity<String> delForm ( @PathVariable( value = "id" ) Integer id ) {
         gameFormService.del( new GameFormVO( id ) );
         return new ResponseEntity<>( "게임명이 삭제되었습니다.", HttpStatus.OK );
+    }
+
+    @ResponseBody
+    @RequestMapping( value = { "/score/update" }, method = RequestMethod.POST )
+    public ResponseEntity<String> scoreUpdate () {
+        schedulerService.calculateScore();
+        return new ResponseEntity<>( "업데이트 완료하였습니다.", HttpStatus.OK );
     }
 
 }

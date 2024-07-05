@@ -221,7 +221,7 @@
                 totalRank ASC
             ) RHH
         WHERE
-            10 >= RHH.totalRank
+            15 >= RHH.totalRank
     </select>
 
     <select id="getTopt10ListByTotal" resultType="com.chouette.rankingWeb.vo.RankingHistoryVO">

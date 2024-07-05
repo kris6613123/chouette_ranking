@@ -86,6 +86,24 @@
                 });
             });
 
+            document.getElementById('btn-score').addEventListener('click', function(evt) {
+                if( confirm("강제 업데이트 진행하시겠습니까?") ) {
+                    let xhr = new XMLHttpRequest();
+
+                    xhr.onreadystatechange = function () {
+                        if (xhr.readyState === XMLHttpRequest.DONE) {
+                            if (xhr.status === 200) {
+                                alert(xhr.responseText);
+                                location.reload();
+                            } else if (xhr.status === 400) {
+                                alert(xhr.responseText);
+                            }
+                        }
+                    };
+                    xhr.open('POST', "/game/score/update", true);
+                    xhr.send();
+                }
+            });
 
         }
     </script>
@@ -227,6 +245,10 @@
                 <button type="button" class="btn-close">닫기</button>
             </div>
         </div>
+    </div>
+
+    <div style="text-align: center">
+        <button type="button" id="btn-score">강제 점수 업데이트</button>
     </div>
 
 
