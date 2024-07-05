@@ -14,71 +14,74 @@
     <link rel='stylesheet' href='/css/common/common.css' type='text/css'/>
     <link rel='stylesheet' href='/css/common/table.css' type='text/css'/>
 
-    <script src="/js/common/common.js"></script>
-    <script src="/js/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+    <script src="/js/common/common.js" defer></script>
+    <script src="/js/chart.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js" defer></script>
     <script type="module">
         import 'https://cdn.jsdelivr.net/npm/@pwabuilder/pwaupdate';
         const el = document.createElement('pwa-update');
         document.body.appendChild(el);
     </script>
     <script type='text/javascript'>
-        window.onload = function(){
+        document.addEventListener('DOMContentLoaded', function() {
+            const search = document.querySelector('.img-game-search');
+            const searchCustomer = document.querySelector('.img-search');
+            const inputList = document.querySelectorAll('.search');
+            const btn_month = document.querySelectorAll('.btn-month');
+            const ioCustomer = document.getElementById('io-customer');
+            const lineChart = document.getElementById('line-chart');
 
-            let search = document.querySelector('.img-game-search');
-            search.addEventListener( 'click', function () {
-                searching( document.querySelector('.game-search') );
+            search.addEventListener('click', () => {
+                searching(document.querySelector('.game-search'));
             });
 
-            let searchCustomer = document.querySelector('.img-search');
-            searchCustomer.addEventListener( 'click', function () {
-                searchingByCustomUrl( "/search", document.querySelector('.io-search') );
+            searchCustomer.addEventListener('click', () => {
+                searchingByCustomUrl("/search", document.querySelector('.io-search'));
             });
 
-            let inputList = document.querySelectorAll('.search');
-            inputList.forEach( function (input) {
-                input.addEventListener('keyup', function (evt) {
-                    if(evt.keyCode === 13) {
+            inputList.forEach(input => {
+                input.addEventListener('keyup', evt => {
+                    if (evt.keyCode === 13) {
                         evt.target.nextElementSibling.querySelector('img').click();
                     }
                 });
             });
 
-
             // 페이지가 로드될 때 특정 위치로 스크롤 이동
-            let searchParams = new URLSearchParams( location.search );
-            if ( searchParams.get('game') !== null ) {
+            const searchParams = new URLSearchParams(location.search);
+            if (searchParams.get('game') !== null) {
                 document.getElementById('game').scrollIntoView();
             }
 
-            let btn_month = document.querySelectorAll('.btn-month');
-            btn_month.forEach(function (btn) {
-                btn.addEventListener('click', function (evt) {
-                    updateChartByMonth( Chart.getChart('line-chart'), resultList, evt.target.value );
+            btn_month.forEach(btn => {
+                btn.addEventListener('click', evt => {
+                    updateChartByMonth(Chart.getChart('line-chart'), resultList, evt.target.value);
                 });
             });
 
-            let labels = getLabels( 1 );   ///기본 1개월로 셋팅
+            const labels = getLabels(1); // 기본 1개월로 설정
             let resultList = [];
 
-            let xhr = new XMLHttpRequest();
-            xhr.onreadystatechange = function() {
-                if ( xhr.readyState === XMLHttpRequest.DONE ) {
-                    if ( xhr.status === 200 ) {
-                        resultList = JSON.parse( xhr.response );
-                        let dataList = getDataList( labels, resultList );
-                        makeLineChart( document.getElementById("line-chart"), labels, dataList );
+            fetch('/customer/' + ioCustomer.value + '/chart', {
+                method: 'POST'
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
                     }
-                    else if( xhr.status === 400 ) {
-                        alert( xhr.responseText );
-                    }
-                }
-            };
-            xhr.open('POST', '/customer/' + document.getElementById('io-customer').value + '/chart', true);
-            xhr.send();
-
-        }
+                    return response.json();
+                })
+                .then(data => {
+                    resultList = data;
+                    const dataList = getDataList(labels, resultList);
+                    makeLineChart(lineChart, labels, dataList);
+                })
+                .catch(error => {
+                    console.error('Fetch error:', error);
+                    alert('Failed to fetch data');
+                });
+        });
 
     </script>
 </head>
@@ -103,8 +106,8 @@
 
             <div class="top-1">
                 <div>
-                    <img class="img-tier" th:src="${tier.file != null} ? '/images/' + ${tier.file} : ' '" alt=" " onerror="this.style.display='none'">
-                    <img class="img-customer" th:src="${customer.file != null} ? '/images/' + ${customer.file} : '/img/baseCustomer.jpg'" alt=" ">
+                    <img class="img-tier" th:src="${tier.file != null} ? '/images/' + ${tier.file} : ' '" alt=" " onerror="this.style.display='none'" loading="lazy">
+                    <img class="img-customer" th:src="${customer.file != null} ? '/images/' + ${customer.file} : '/img/baseCustomer.jpg'" alt=" " loading="lazy">
                 </div>
             </div>
 
@@ -125,7 +128,7 @@
                             </thead>
                             <tbody>
                             <tr>
-                                <td> <img th:if="${customer.branchLogo != null}" class="image-fit" th:src="'/images/' + ${customer.branchLogo}" alt=" "> </td>
+                                <td> <img th:if="${customer.branchLogo != null}" class="image-fit" th:src="'/images/' + ${customer.branchLogo}" alt=" " loading="lazy"> </td>
                                 <td th:text="${customer.branchName}"></td>
                                 <td th:text="${customer.nickname}"></td>
                                 <td th:text="${tier.tier}"></td>

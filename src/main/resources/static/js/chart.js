@@ -88,7 +88,8 @@ function makeLineChart( element, labels, dataList ) {
 }
 
 function getLabels( num ) {
-    let currentDate = new Date(2024, 1, 1);
+    // let currentDate = new Date(2024, 1, 1);
+    let currentDate = new Date();
     let labels = [];
     for (let i = 0; i < num; i++) {
         let year = currentDate.getFullYear();
@@ -106,17 +107,18 @@ function getLabels( num ) {
 
 function getDataList( labels, resultList ) {
     let dataList = [];
-    let currentDate = new Date();
-    let lastDate = new Date(labels[0]);
-
+    // let currentDate = new Date();
+    let lastDate = new Date(labels[labels.length - 1]);
+    let startDate = new Date(labels[0]);
     for( let i = 0; i < resultList.length; i++ ) {
 
-        let gameDate = new Date(resultList[0].gameDttm);
-        if (gameDate <= currentDate && gameDate >= lastDate) {
+        let gameDate = new Date(resultList[i].gameDttm);
+        if (gameDate >= startDate && gameDate <= lastDate) {
             let object = {
                 x: resultList[i].gameDttm,
                 y: resultList[i].totalRank
             }
+            // console.log("gameDate 만족")
             dataList.push(object);
         }
     }
@@ -162,7 +164,7 @@ function resizeChart(chart) {
         chart.options.scales.y.ticks.font.size = 10;
     }
     else if( width < 1024 ) {
-        console.log(width);
+        // console.log(width);
     }
     else if( width < 1441 ) {
         //tooltip

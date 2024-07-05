@@ -69,9 +69,9 @@ public class IdAop {
             if (parameterNames[i].equals("id")) {
                 Integer id = (Integer) arguments[i];
                 if ( id != null ) {
-                    log.info("checkCustomer id is " + id);
+//                    log.info("checkCustomer id is " + id);
                     if ( customerService.getItem( new CustomerVO( id ) ) == null ) {
-                        log.info("checkCustomer back  " + id);
+//                        log.info("checkCustomer back  " + id);
                         throw new CustomPageUnavailableException("redirect:/search");
                     }
                 }
@@ -88,9 +88,9 @@ public class IdAop {
             if (parameterNames[i].equals("id")) {
                 Integer id = (Integer) arguments[i];
                 if ( id != null ) {
-                    log.info("customerHaveGame id is " + id);
+//                    log.info("customerHaveGame id is " + id);
                     if ( gameService.getListByCustomer( id ).size() == 0 ) {
-                        log.info("customerHaveGame back");
+//                        log.info("customerHaveGame back");
                         throw new CustomPageUnavailableException("redirect:/search");
                     }
                 }
