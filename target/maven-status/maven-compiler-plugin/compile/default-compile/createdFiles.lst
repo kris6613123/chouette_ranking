@@ -24,6 +24,7 @@ com\chouette\rankingWeb\dao\std\StdWinningRewardDAO.class
 com\chouette\rankingWeb\vo\RankingHistoryVO.class
 com\chouette\rankingWeb\dao\std\StdWinningBuyinDAO.class
 com\chouette\rankingWeb\vo\NewsVO.class
+com\chouette\rankingWeb\vo\SearchVO.class
 com\chouette\rankingWeb\controller\CtrlNews.class
 com\chouette\rankingWeb\config\SecurityConfig.class
 com\chouette\rankingWeb\dao\BranchDAO.class

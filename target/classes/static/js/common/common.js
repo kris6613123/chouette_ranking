@@ -17,6 +17,67 @@ function searching( element ){
     location.href = location.pathname + "?" + searchParams;
 }
 
+function game_searching( id, element ){
+    fetch('/customer/' + id + '/glist', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            keyword: element.value
+        })
+
+    })
+
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            handlingGameData(data);
+            document.getElementById('game').scrollIntoView();
+        })
+        .catch(error => {
+            console.error('Fetch error:', error);
+            alert('Failed to fetch data');
+        });
+}
+
+function handlingGameData(gameList) {
+    const gameTableBody = document.getElementById('gameTableBody');
+    gameTableBody.innerHTML = '';
+    if (gameList.length == 0) {
+        const row = document.createElement('tr');
+        const gameDttmCell = document.createElement('td');
+        gameDttmCell.textContent = '검색 결과가 존재하지 않습니다.';
+        gameDttmCell.colSpan = 3;
+        row.appendChild(gameDttmCell);
+        gameTableBody.appendChild(row);
+    }
+    gameList.forEach((game, index) => {
+        const row = document.createElement('tr');
+        if (index % 2 === 0) {
+            row.style.backgroundColor = 'rgba(114, 112, 112, 0.3)';
+        }
+
+        const gameDttmCell = document.createElement('td');
+        gameDttmCell.textContent = game.gameDttm;
+        row.appendChild(gameDttmCell);
+
+        const cpiCell = document.createElement('td');
+        cpiCell.textContent = game.cpi;
+        row.appendChild(cpiCell);
+
+        const nameCell = document.createElement('td');
+        nameCell.textContent = game.name;
+        row.appendChild(nameCell);
+
+        gameTableBody.appendChild(row);
+    });
+}
+
 function searchingByCustomUrl( url, element ){
     let searchParams = new URLSearchParams( "" );
     searchParams.set( element.id, element.value );

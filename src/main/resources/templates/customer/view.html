@@ -14,9 +14,9 @@
     <link rel='stylesheet' href='/css/common/common.css' type='text/css'/>
     <link rel='stylesheet' href='/css/common/table.css' type='text/css'/>
 
-    <script src="/js/common/common.js" ></script>
-    <script src="/js/chart.js" ></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js" ></script>
+    <script src="/js/common/common.js" defer></script>
+    <script src="/js/chart.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js" defer></script>
     <script type="module">
         import 'https://cdn.jsdelivr.net/npm/@pwabuilder/pwaupdate';
@@ -33,7 +33,7 @@
             const lineChart = document.getElementById('line-chart');
 
             search.addEventListener('click', () => {
-                searching(document.querySelector('.game-search'));
+                game_searching(ioCustomer.value, document.querySelector('.game-search'));
             });
 
             searchCustomer.addEventListener('click', () => {
@@ -76,6 +76,22 @@
                     resultList = data;
                     const dataList = getDataList(labels, resultList);
                     makeLineChart(lineChart, labels, dataList);
+                })
+                .catch(error => {
+                    console.error('Fetch error:', error);
+                    alert('Failed to fetch data');
+                });
+            fetch('/customer/' + ioCustomer.value + '/glist', {
+                method: 'POST'
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    handlingGameData(data);
                 })
                 .catch(error => {
                     console.error('Fetch error:', error);
@@ -213,12 +229,12 @@
                         <th>GAME</th>
                     </tr>
                     </thead>
-                    <tbody>
-                    <tr th:each='game, stat : ${gameList}' th:style="${stat.count % 2 == 0 ? 'background-color: rgba(114, 112, 112, 0.3)' : ''}">
-                        <td th:text="${game.gameDttm}"></td>
-                        <td th:text="${game.cpi}"></td>
-                        <td th:text="${game.name}"></td>
-                    </tr>
+                    <tbody id="gameTableBody">
+<!--                    <tr th:each='game, stat : ${gameList}' th:style="${stat.count % 2 == 0 ? 'background-color: rgba(114, 112, 112, 0.3)' : ''}">-->
+<!--                        <td th:text="${game.gameDttm}"></td>-->
+<!--                        <td th:text="${game.cpi}"></td>-->
+<!--                        <td th:text="${game.name}"></td>-->
+<!--                    </tr>-->
                     </tbody>
                 </table>
             </div>

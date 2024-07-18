@@ -34,7 +34,6 @@
         SELECT
             RH.CUSTOMER AS customer,
             C.NAME AS name,
-            ( SELECT IFNULL( ( COUNT( CASE WHEN G.REWARD > 0 THEN 1 END ) / COUNT(*) ), 0) * 100 FROM GAME G WHERE G.CUSTOMER = C.CUSTOMER ) AS itm,
             MAX(RH.TOTAL_CPI) AS totalCpi,
             MAX(RH.ONLINE_CPI) AS onlineCpi,
             MAX(RH.OFFLINE_CPI) AS offlineCpi,
@@ -49,8 +48,6 @@
             RANKING_HISTORY RH
         INNER JOIN
             CUSTOMER C ON C.CUSTOMER = RH.CUSTOMER
-        INNER JOIN
-            BRANCH B ON B.BRANCH = C.BRANCH
         GROUP BY
             RH.CUSTOMER
     </sql>
@@ -172,7 +169,7 @@
     <select id="getItemByCustomer" resultType="com.chouette.rankingWeb.vo.RankingHistoryVO">
         SELECT
             name,
-            itm,
+            ( SELECT IFNULL( ( COUNT( CASE WHEN G.REWARD > 0 THEN 1 END ) / COUNT(*) ), 0) * 100 FROM GAME G WHERE G.CUSTOMER = #{customer} ) AS itm,
             totalCpi,
             onlineCpi,
             offlineCpi,

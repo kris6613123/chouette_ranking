@@ -2,9 +2,8 @@ package com.chouette.rankingWeb.controller;
 
 import com.chouette.rankingWeb.service.*;
 import com.chouette.rankingWeb.service.std.StdTierService;
-import com.chouette.rankingWeb.vo.BranchVO;
-import com.chouette.rankingWeb.vo.CustomerVO;
-import com.chouette.rankingWeb.vo.RankingHistoryVO;
+import com.chouette.rankingWeb.vo.*;
+import com.chouette.rankingWeb.vo.std.StdTierVO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -18,6 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 @Controller
 @Slf4j
@@ -74,11 +74,10 @@ public class CtrlCustomer extends CtrlBase {
 
 
     @RequestMapping( value = { "/{id}/view" } )
-    public String view( Model model, @PathVariable( value = "id" ) Integer id, @RequestParam( value="game", required = false ) String keyowrd ) {
+    public String view( Model model, @PathVariable( value = "id" ) Integer id ) {
         model.addAttribute( "tier", stdTierService.getItemByCustomer( id ) );
         model.addAttribute( "customer", customerService.getItem( new CustomerVO( id ) ) );
         model.addAttribute( "ranking", rankingHistoryService.getItemByCustomer( id ) );
-        model.addAttribute( "gameList", gameService.getListByCustomer( id, keyowrd ) );
         return "customer/view";
     }
 
@@ -86,6 +85,16 @@ public class CtrlCustomer extends CtrlBase {
     @RequestMapping( value = {"/{id}/chart"}, method = RequestMethod.POST  )
     public ResponseEntity<List<RankingHistoryVO>> chartData( @PathVariable( value = "id" ) Integer id ) {
         return new ResponseEntity<>( rankingHistoryService.getListByCustomer( id ), HttpStatus.OK );
+    }
+
+    @ResponseBody
+    @RequestMapping( value = {"/{id}/glist"}, method = RequestMethod.POST  )
+    public ResponseEntity<List<GameVO>> gameData(@PathVariable( value = "id" ) Integer id, @RequestBody( required = false ) SearchVO vo ) {
+        String keyword = "";
+        if (vo != null) {
+            keyword = vo.getKeyword();
+        }
+        return new ResponseEntity<>( gameService.getListByCustomer( id, keyword ), HttpStatus.OK );
     }
 
 }
