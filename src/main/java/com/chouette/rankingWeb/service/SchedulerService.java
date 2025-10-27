@@ -66,7 +66,7 @@ public class SchedulerService {
                 if( aging == 0 ) {
                     game.setState("OLD");
                 }
-                log.info("game : " + game);
+//                log.info("game : " + game);
                 game.setCpi( BigDecimal.valueOf( game.getScore().doubleValue() * aging ).setScale(2, RoundingMode.HALF_UP) );
             }
             gameService.dailyMod( game );

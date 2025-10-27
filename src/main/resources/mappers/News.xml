@@ -57,6 +57,7 @@
 
     <select id="getList" resultType="com.chouette.rankingWeb.vo.NewsVO">
         <include refid="select"/>
+        WHERE NEWS != 5
         ORDER BY REG_DTTM DESC
     </select>
 

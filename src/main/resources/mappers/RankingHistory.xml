@@ -77,12 +77,30 @@
     </insert>
 
     <update id="add2">
-        update
-            RANKING_HISTORY RH
-        set
-            RH.TOTAL_CPI = RH.TOTAL_CPI + IFNULL( ( SELECT SUM( RHH.TOTAL_CPI ) FROM RANKING_HISTORY RHH where RHH.CUSTOMER = RH.CUSTOMER and RH.GAME_DTTM > RHH.GAME_DTTM ), 0 ),
-            RH.ONLINE_CPI = RH.ONLINE_CPI + IFNULL( ( SELECT SUM( RHH.ONLINE_CPI ) FROM RANKING_HISTORY RHH where RHH.CUSTOMER = RH.CUSTOMER and RH.GAME_DTTM > RHH.GAME_DTTM ), 0 ),
-            RH.OFFLINE_CPI = RH.OFFLINE_CPI + IFNULL( ( SELECT SUM( RHH.OFFLINE_CPI ) FROM RANKING_HISTORY RHH where RHH.CUSTOMER = RH.CUSTOMER and RH.GAME_DTTM > RHH.GAME_DTTM ), 0 )
+        UPDATE RANKING_HISTORY RH
+            JOIN (
+            SELECT
+            R1.CUSTOMER,
+            R1.GAME_DTTM,
+            SUM(R2.TOTAL_CPI) AS totalCpiSum,
+            SUM(R2.ONLINE_CPI) AS onlineCpiSum,
+            SUM(R2.OFFLINE_CPI) AS offlineCpiSum
+            FROM
+            RANKING_HISTORY R1
+            LEFT JOIN RANKING_HISTORY R2 ON R1.CUSTOMER = R2.CUSTOMER AND R1.GAME_DTTM > R2.GAME_DTTM
+            GROUP BY
+            R1.CUSTOMER, R1.GAME_DTTM
+            ) AS SUB ON RH.CUSTOMER = SUB.CUSTOMER AND RH.GAME_DTTM = SUB.GAME_DTTM
+            SET
+                RH.TOTAL_CPI = RH.TOTAL_CPI + IFNULL(SUB.totalCpiSum, 0),
+                RH.ONLINE_CPI = RH.ONLINE_CPI + IFNULL(SUB.onlineCpiSum, 0),
+                RH.OFFLINE_CPI = RH.OFFLINE_CPI + IFNULL(SUB.offlineCpiSum, 0);
+--         update
+--             RANKING_HISTORY RH
+--         set
+--             RH.TOTAL_CPI = RH.TOTAL_CPI + IFNULL( ( SELECT SUM( RHH.TOTAL_CPI ) FROM RANKING_HISTORY RHH where RHH.CUSTOMER = RH.CUSTOMER and RH.GAME_DTTM > RHH.GAME_DTTM ), 0 ),
+--             RH.ONLINE_CPI = RH.ONLINE_CPI + IFNULL( ( SELECT SUM( RHH.ONLINE_CPI ) FROM RANKING_HISTORY RHH where RHH.CUSTOMER = RH.CUSTOMER and RH.GAME_DTTM > RHH.GAME_DTTM ), 0 ),
+--             RH.OFFLINE_CPI = RH.OFFLINE_CPI + IFNULL( ( SELECT SUM( RHH.OFFLINE_CPI ) FROM RANKING_HISTORY RHH where RHH.CUSTOMER = RH.CUSTOMER and RH.GAME_DTTM > RHH.GAME_DTTM ), 0 )
     </update>
 
     <update id="add3">
@@ -95,7 +113,7 @@
                       ( SELECT
                             r2.CUSTOMER,
                             r1.GAME_DTTM,
-                            MAX(r2.TOTAL_CPI),
+--                             MAX(r2.TOTAL_CPI),
                             RANK() OVER (PARTITION BY r1.GAME_DTTM ORDER BY MAX(r2.TOTAL_CPI) DESC ) AS rank
                         FROM
                             RANKING_HISTORY r1, RANKING_HISTORY r2
@@ -113,7 +131,7 @@
                       ( SELECT
                             r2.CUSTOMER,
                             r1.GAME_DTTM,
-                            MAX(r2.ONLINE_CPI),
+--                             MAX(r2.ONLINE_CPI),
                             RANK() OVER ( PARTITION BY r1.GAME_DTTM ORDER BY MAX(r2.ONLINE_CPI) DESC ) AS rank
                         FROM
                             RANKING_HISTORY r1, RANKING_HISTORY r2
@@ -131,7 +149,7 @@
                       ( SELECT
                             r2.CUSTOMER,
                             r1.GAME_DTTM,
-                            MAX(r2.OFFLINE_CPI),
+--                             MAX(r2.OFFLINE_CPI),
                             RANK() OVER (PARTITION BY r1.GAME_DTTM ORDER BY MAX(r2.OFFLINE_CPI) DESC ) AS rank
                         FROM
                             RANKING_HISTORY r1, RANKING_HISTORY r2
